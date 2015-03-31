@@ -1,4 +1,5 @@
 from celery import shared_task
+import celery
 import zipfile
 import os
 import shutil
@@ -6,10 +7,22 @@ import recastapi.request
 import json
 import uuid
 import importlib
-
+import redis
+import emitter
+from datetime import datetime
 
 def socketlog(jobguid,msg):
-  pass#io.Of('/monitor').In(str(jobguid)).Emit('room_msg',{'date':datetime.now().strftime('%Y-%m-%d %X'),'msg':msg})
+  red = redis.StrictRedis(host = celery.current_app.conf['CELERY_REDIS_HOST'],
+                            db = celery.current_app.conf['CELERY_REDIS_DB'], 
+                          port = celery.current_app.conf['CELERY_REDIS_PORT'])
+  io  = emitter.Emitter({'client': red})
+
+  msg_data = {'date':datetime.now().strftime('%Y-%m-%d %X'),'msg':msg}
+
+  #also print directly
+  print "{date} -- {msg}".format(**msg_data)
+
+  io.Of('/monitor').In(str(jobguid)).Emit('room_msg',msg_data)
   
 import requests
 def download_file(url,download_dir):
