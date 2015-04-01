@@ -1,5 +1,4 @@
 import redis
-import celery
 from recastbackend.productionapp import app as productionapp
 import msgpack
 import time
