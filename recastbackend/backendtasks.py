@@ -60,6 +60,10 @@ def postresults(jobguid,requestId,parameter_point,resultlister):
     requestId = requestId,
     point = parameter_point
   )])
+
+  #clean up
+  shutil.rmtree(workdir)
+  shutil.rmtree(resultdir)
   
   socketlog(jobguid,'done')
   return requestId
