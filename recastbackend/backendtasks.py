@@ -7,23 +7,8 @@ import recastapi.request
 import json
 import uuid
 import importlib
-import redis
-import emitter
-from datetime import datetime
 
-def socketlog(jobguid,msg):
-  red = redis.StrictRedis(host = celery.current_app.conf['CELERY_REDIS_HOST'],
-                            db = celery.current_app.conf['CELERY_REDIS_DB'], 
-                          port = celery.current_app.conf['CELERY_REDIS_PORT'])
-  io  = emitter.Emitter({'client': red})
-
-  msg_data = {'date':datetime.now().strftime('%Y-%m-%d %X'),'msg':msg}
-
-  #also print directly
-  print "{date} -- {msg}".format(**msg_data)
-
-  io.Of('/monitor').In(str(jobguid)).Emit('room_msg',msg_data)
-  
+from recastbackend.logging import socketlog  
 import requests
 def download_file(url,download_dir):
     local_filename = url.split('/')[-1]
@@ -105,27 +90,3 @@ def prepare_workdir(fileguid,jobguid):
   socketlog(jobguid,'prepared workdir')
 
   return jobguid
-  
-def prechain(request_uuid,point,jobguid,queuename):
-  request_info = recastapi.request.request(request_uuid)
-  jobinfo = request_info['parameter-points'][point]
-
-  pre = (   prepare_workdir.subtask((request_uuid,jobguid),queue=queuename) |
-            prepare_job.subtask((jobinfo,),queue=queuename)
-        )
-  return pre
-
-def postchain(request_uuid,point,queuename,resultlist):           
-  post = ( postresults.subtask((request_uuid,point,resultlist),queue=queuename) )
-  return post
-  
-def wrapped_chain(request_uuid,point,queuename,modulename):
-  analysis_module = importlib.import_module(modulename)
-  
-  jobguid = uuid.uuid1()
-  
-  pre  =  prechain(request_uuid,point,jobguid,queuename)
-  post =  postchain(request_uuid,point,queuename,analysis_module.resultlist)
-
-  chain = (pre | analysis_module.get_chain(queuename) | post)
-  return (jobguid,chain)
