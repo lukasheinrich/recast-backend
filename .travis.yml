@@ -6,3 +6,5 @@ python:
 install:
   - pip install . --process-dependency-links
 
+script:
+  - "echo "just building"
