@@ -9,6 +9,10 @@ import uuid
 import importlib
 import subprocess
 
+BACKENDUSER = 'analysis'
+BACKENDHOST = 'recast-demo'
+BACKENDBASEPATH = '/home/analysis/recast/recaststorage'
+
 from recastbackend.logging import socketlog  
 import requests
 def download_file(url,download_dir):
