@@ -3,6 +3,9 @@ from recastbackend.catalogue import implemented_analyses
 
 from recastbackend.submitter import celery_submit_wrapped
 import recastbackend.utils
+
+from recastbackend.productionapp import app as celery_app
+
 def dedicated_submit(uuid,parameter):
   request_info = recastapi.request.request(uuid)
   analysis_uuid = request_info['analysis-uuid']
@@ -18,8 +21,8 @@ def dedicated_submit(uuid,parameter):
   
 
 def submit_recast_request(uuid,parameter,backend):
-  from recastbackend.productionapp import app
   supported_backends = ['dedicated']
+  celery_app.set_current()
 
   print 'submitting {}/{} on {}'.format(uuid,parameter,backend)
   
