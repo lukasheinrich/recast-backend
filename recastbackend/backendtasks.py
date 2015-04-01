@@ -7,6 +7,7 @@ import recastapi.request
 import json
 import uuid
 import importlib
+import subprocess
 
 from recastbackend.logging import socketlog  
 import requests

@@ -24,13 +24,17 @@ def pubsub_or_ready(result,pubsub):
       yield message      
     time.sleep(0.001)  # be nice to the system :)    
 
-def agnostic_submit(uuid,parameter,wrapper_func,queue,modulename):
+def celery_submit_wrapped(uuid,parameter,wrapper_func,queue,modulename):
   analysis_module = importlib.import_module(modulename)
   analysis_chain  = analysis_module.get_chain(queue)
   j,c = wrapper_func(uuid,parameter,analysis_chain,analysis_module.resultlist,queue)
   result = c.apply_async()
+  return result
+      
+def agnostic_submit(uuid,parameter,wrapper_func,queue,modulename):
+  result = celery_submit_wrapped(uuid,parameter,wrapper_func,queue,modulename)
+
   click.secho('submitted chain for module {}'.format(modulename))
-  
   
   red = redis.StrictRedis(host = celery.current_app.conf['CELERY_REDIS_HOST'],
                             db = celery.current_app.conf['CELERY_REDIS_DB'], 
