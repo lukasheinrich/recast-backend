@@ -13,10 +13,10 @@ def dedicated_submit(uuid,parameter):
   if analysis_uuid not in implemented_analyses:
     raise NotImplementedError
 
-  workflowmodule = implemented_analyses[analysis_uuid]['workflow']
+  workflowmodulename = implemented_analyses[analysis_uuid]['workflow']
   queuename = implemented_analyses[analysis_uuid]['queue']
 
-  jobguid,result = celery_submit_wrapped(uuid,parameter,recastbackend.utils.wrapped_chain,queue = queuename,module = workflowmodule)
+  jobguid,result = celery_submit_wrapped(uuid,parameter,recastbackend.utils.wrapped_chain,queue = queuename,modulename = workflowmodulename)
   return jobguid,result
   
 

@@ -21,9 +21,9 @@ implemented_analyses = {
   #     },
   recastsusyhiggs.blueprint.RECAST_ANALYSIS_ID :
       {
-       'workflow':recastsusyhiggs.backendtasks,
+       'workflow':'recastsusyhiggs.backendtasks',
        'queue':'susy_queue',
-       'blueprint':recastsusyhiggs.blueprint.blueprint
+       'blueprint':'recastsusyhiggs.blueprint:blueprint'
       }  
 
 }
