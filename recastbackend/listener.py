@@ -5,7 +5,7 @@ import time
 import click
 
 
-def yield_redis_msg_until(pubsub, breaker = lambda: False):
+def yield_redis_msg_until(pubsub,breaker):
   while True:
     message = pubsub.get_message()
     # if our result is ready (failed or successful)
@@ -17,8 +17,8 @@ def yield_redis_msg_until(pubsub, breaker = lambda: False):
     time.sleep(0.001)  # be nice to the system :)    
 
 
-def yieldsocketmsg(pubsub,namespace = '/'):
-  for m in yield_redis_msg_until(pubsub):
+def yieldsocketmsg_until(pubsub,namespace = '/',breaker = lambda: False):
+  for m in yield_redis_msg_until(pubsub,breaker):
     if m['type'] == 'message':
       data =  msgpack.unpackb(m['data'])[0]
       extras =  msgpack.unpackb(m['data'])[1]
@@ -41,7 +41,7 @@ def listen():
       pubsub = get_socket_pubsub()
       click.secho('connected! start listening',fg = 'green')
 
-      for data,extras in yieldsocketmsg(pubsub,namespace = '/monitor'):
+      for data,extras in yieldsocketmsg_until(pubsub,namespace = '/monitor'):
         info = click.style('received message to rooms {rooms}: '.format(rooms = extras['rooms']), fg = 'black')
         msg   = click.style('{date} -- {msg}'.format(**(data['data'][1])),fg = 'blue')
         click.secho(info + msg)

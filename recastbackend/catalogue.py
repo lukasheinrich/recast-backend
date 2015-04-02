@@ -3,9 +3,6 @@
 #import recasthype.hype_backendtasks as hype_backendtasks
 #import recasthype.hype_blueprint as hype_blueprint
 
-import recastsusyhiggs.backendtasks
-import recastsusyhiggs.blueprint
-
 implemented_analyses = {
   # dmhiggs_blueprint.RECAST_ANALYSIS_ID :
   #     {
@@ -19,7 +16,7 @@ implemented_analyses = {
   #      'queue':'hype_queue',
   #      'blueprint':hype_blueprint.blueprint
   #     },
-  recastsusyhiggs.blueprint.RECAST_ANALYSIS_ID :
+  '19c471ff-2514-eb44-0d82-59563cc38dab' :
       {
        'workflow':'recastsusyhiggs.backendtasks',
        'queue':'susy_queue',

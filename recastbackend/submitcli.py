@@ -1,13 +1,14 @@
 import click
 import recastbackend.utils
-from recastbackend.submitter import agnostic_submit
+from recastbackend.submission import production_celery_submit
+from recastbackend.submitter import wait_and_echo
 from recastbackend.productionapp import app
 
 @click.command()
 @click.argument('uuid')
 @click.argument('parameter')
-@click.argument('queue')
-@click.argument('modulename')
-def submit(uuid,parameter,queue,modulename):
+@click.argument('backend')
+def submit(uuid,parameter,backend):
     app.set_current()
-    return agnostic_submit(uuid,parameter,recastbackend.utils.wrapped_chain,queue,modulename)
+    jobguid,result =  production_celery_submit(uuid,parameter,backend)
+    return wait_and_echo(result)
