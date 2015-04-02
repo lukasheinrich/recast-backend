@@ -25,7 +25,7 @@ def pubsub_or_ready(result,pubsub):
     time.sleep(0.001)  # be nice to the system :)    
 
 def celery_submit_wrapped(uuid,parameter,wrapper_func,queue,modulename):
-  analysis_module = importlib.import_module(modulename) if modulename else module
+  analysis_module = importlib.import_module(modulename)
   analysis_chain  = analysis_module.get_chain(queue)
   j,c = wrapper_func(uuid,parameter,analysis_chain,analysis_module.resultlist,queue)
   result = c.apply_async()
