@@ -11,15 +11,15 @@ def prechain(request_uuid,point,jobguid,queuename):
         )
   return pre
 
-def postchain(request_uuid,point,queuename,resultlist):           
-  post = ( recastbackend.backendtasks.postresults.subtask((request_uuid,point,resultlist),queue=queuename) )
+def postchain(request_uuid,point,queuename,resultlist,backend):           
+  post = ( recastbackend.backendtasks.postresults.subtask((request_uuid,point,resultlist,backend),queue=queuename) )
   return post
 
-def wrapped_chain(request_uuid,point,analysis_chain,resultlist,queuename):
+def wrapped_chain(request_uuid,point,analysis_chain,resultlist,queuename,backend):
   jobguid = uuid.uuid1()
   
   pre  =  prechain(request_uuid,point,jobguid,queuename)
-  post =  postchain(request_uuid,point,queuename,resultlist)
+  post =  postchain(request_uuid,point,queuename,resultlist,backend)
 
   chain = (pre | analysis_chain | post)
   return (jobguid,chain)

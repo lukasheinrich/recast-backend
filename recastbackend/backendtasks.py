@@ -23,7 +23,7 @@ def download_file(url,download_dir):
     return download_path    
 
 @shared_task
-def postresults(jobguid,requestId,parameter_point,resultlister):
+def postresults(jobguid,requestId,parameter_point,resultlister,backend):
   workdir = 'workdirs/{}'.format(jobguid)
   resultdir = 'results/{}/{}'.format(requestId,parameter_point)
   
@@ -41,19 +41,22 @@ def postresults(jobguid,requestId,parameter_point,resultlister):
   socketlog(jobguid,'uploading resuls')
 
   #also copy to server
-  subprocess.call('''ssh {user}@{host} "mkdir -p {base}/results/{requestId}/{point} && rm -rf {base}/results/{requestId}/{point}/dedicated"'''.format(
+  subprocess.call('''ssh {user}@{host} "mkdir -p {base}/results/{requestId}/{point} && rm -rf {base}/results/{requestId}/{point}/{backend}"'''.format(
     user = BACKENDUSER,
     host = BACKENDHOST,
     base = BACKENDBASEPATH,
     requestId = requestId,
-    point = parameter_point)
+    point = parameter_point,
+    backend = backend
+    )
   ,shell = True)
-  subprocess.call(['scp', '-r', resultdir,'{user}@{host}:{base}/results/{requestId}/{point}/dedicated'.format(
+  subprocess.call(['scp', '-r', resultdir,'{user}@{host}:{base}/results/{requestId}/{point}/{backend}'.format(
     user = BACKENDUSER,
     host = BACKENDHOST,
     base = BACKENDBASEPATH,
     requestId = requestId,
-    point = parameter_point
+    point = parameter_point,
+    backend = backend
   )])
 
   #clean up
