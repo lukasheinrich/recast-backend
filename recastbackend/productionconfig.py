@@ -1,4 +1,4 @@
-BROKER_URL = 'redis://'
+BROKER_URL = 'redis://recast-demo'
 CELERY_RESULT_BACKEND = "redis"
 CELERY_REDIS_HOST = "recast-demo"
 CELERY_REDIS_PORT = 6379
