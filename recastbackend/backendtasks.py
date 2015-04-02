@@ -35,8 +35,11 @@ def postresults(jobguid,requestId,parameter_point,resultlister,backend):
   for result,resultpath in ((r,os.path.abspath('{}/{}'.format(workdir,r))) for r in resultlister()):
     if os.path.isfile(resultpath):
       shutil.copyfile(resultpath,'{}/{}'.format(resultdir,result))
-    if os.path.isdir(resultpath):
+    else if os.path.isdir(resultpath):
       shutil.copytree(resultpath,'{}/{}'.format(resultdir,result))
+    else:
+      socketlog(jobguid,'result does not exist or is neither file nor folder!')
+      raise RuntimeError
 
   socketlog(jobguid,'uploading resuls')
 
