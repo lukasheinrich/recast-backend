@@ -44,7 +44,7 @@ def agnostic_submit(uuid,parameter,wrapper_func,queue,modulename):
   for m in pubsub_or_ready(result,pubsub):
     if m['type'] == 'message':
       data =  msgpack.unpackb(m['data'])[0]
-      extras =  msgpack.unpackb(m['data'])[1]
+      #extras =  msgpack.unpackb(m['data'])[1]
       if(data['nsp'] == '/monitor'):
         click.secho('received message: {date} -- {msg}'.format(**(data['data'][1])),fg = 'blue')
   if result.successful():

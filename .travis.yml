@@ -5,6 +5,6 @@ python:
 # command to install dependencies
 install:
   - pip install . --process-dependency-links
-
+  - pip install pyflakes
 script:
-  - "echo 'just building'"
+  - pyflakes .

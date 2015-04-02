@@ -9,4 +9,5 @@ from recastbackend.productionapp import app
 @click.argument('queue')
 @click.argument('modulename')
 def submit(uuid,parameter,queue,modulename):
+    app.set_current()
     return agnostic_submit(uuid,parameter,recastbackend.utils.wrapped_chain,queue,modulename)

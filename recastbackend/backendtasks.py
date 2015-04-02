@@ -1,12 +1,7 @@
 from celery import shared_task
-import celery
 import zipfile
 import os
 import shutil
-import recastapi.request
-import json
-import uuid
-import importlib
 import subprocess
 
 BACKENDUSER = 'analysis'
@@ -91,7 +86,6 @@ def prepare_job(jobguid,jobinfo):
 
 @shared_task
 def prepare_workdir(fileguid,jobguid):
-  uploaddir = 'uploads/{}'.format(fileguid)
   workdir = 'workdirs/{}'.format(jobguid)
   
   os.makedirs(workdir)
