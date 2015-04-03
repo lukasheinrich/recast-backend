@@ -1,5 +1,4 @@
 import click
-import recastbackend.utils
 from recastbackend.submission import production_celery_submit
 from recastbackend.submitter import wait_and_echo
 from recastbackend.productionapp import app
