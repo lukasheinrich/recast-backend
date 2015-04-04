@@ -5,12 +5,6 @@ import redis
 import celery
 from recastbackend.listener import yieldsocketmsg_until
 
-def get_parents(child):
-  x = child.parent
-  while x:
-    yield x
-    x = x.parent
-
 def wait_and_echo(result):
   red = redis.StrictRedis(host = celery.current_app.conf['CELERY_REDIS_HOST'],
                             db = celery.current_app.conf['CELERY_REDIS_DB'], 
@@ -18,11 +12,7 @@ def wait_and_echo(result):
   pubsub = red.pubsub()
   pubsub.subscribe('socket.io#emitter')
 
-
-  def result_ready_or_failed():
-    return (result.ready() or any(map(lambda x:x.failed(),get_parents(result))))
-
-  for data,extras in yieldsocketmsg_until(pubsub,namespace = '/monitor',breaker = result_ready_or_failed):
+  for data,extras in yieldsocketmsg_until(pubsub,namespace = '/monitor',breaker = lambda: result.ready()):
     info = click.style('received message to rooms {rooms}: '.format(rooms = extras['rooms']), fg = 'black')
     msg   = click.style('{date} -- {msg}'.format(**(data['data'][1])),fg = 'blue')
     click.secho(info + msg)

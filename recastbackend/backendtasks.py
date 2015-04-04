@@ -1,15 +1,17 @@
-from celery import shared_task
 import zipfile
 import os
 import shutil
 import subprocess
-
-BACKENDUSER = 'analysis'
-BACKENDHOST = 'recast-demo'
-BACKENDBASEPATH = '/home/analysis/recast/recaststorage'
-
-from recastbackend.logging import socketlog  
+import importlib
+import logging
 import requests
+import recastapi.request
+from recastbackend.messaging import setupLogging
+
+from celery import shared_task
+
+log = logging.getLogger('RECAST')
+
 def download_file(url,download_dir):
     local_filename = url.split('/')[-1]
     # NOTE the stream=True parameter
@@ -22,10 +24,41 @@ def download_file(url,download_dir):
                 f.flush()
     return download_path    
 
-@shared_task
-def postresults(jobguid,requestId,parameter_point,resultlister,backend):
+def prepare_job(jobguid,jobinfo):
   workdir = 'workdirs/{}'.format(jobguid)
-  resultdir = 'results/{}/{}'.format(requestId,parameter_point)
+
+  input_url = jobinfo['run-condition'][0]['lhe-file']
+  log.info('downloading input files')
+
+  filepath = download_file(input_url,workdir)
+
+  log.info('downloaded done (at: {})'.format(filepath))
+
+  with zipfile.ZipFile(filepath)as f:
+    f.extractall('{}/inputs'.format(workdir)) 
+
+
+def setup(ctx):
+  jobguid = ctx['jobguid']
+  request_uuid = ctx['requestguid']
+  parameter_pt = ctx['parameter_pt']
+
+  log.info('setting up for {requestguid}:{parameter_pt}:{backend}'.format(**ctx))
+
+  request_info = recastapi.request.request(request_uuid)
+  jobinfo = request_info['parameter-points'][parameter_pt]
+
+  prepare_workdir(request_uuid,jobguid)
+  prepare_job(jobguid,jobinfo)
+
+def prepare_workdir(fileguid,jobguid):
+  workdir = 'workdirs/{}'.format(jobguid)
+  os.makedirs(workdir)
+  log.info('prepared workdir')
+
+def isolate_results(jobguid,resultlister):
+  workdir = 'workdirs/{}'.format(jobguid)
+  resultdir = '{}/results'.format(workdir)
   
   if(os.path.exists(resultdir)):
     shutil.rmtree(resultdir)
@@ -38,10 +71,22 @@ def postresults(jobguid,requestId,parameter_point,resultlister,backend):
     elif os.path.isdir(resultpath):
       shutil.copytree(resultpath,'{}/{}'.format(resultdir,result))
     else:
-      socketlog(jobguid,'result does not exist or is neither file nor folder!')
+      log.info('result does not exist or is neither file nor folder!')
       raise RuntimeError
 
-  socketlog(jobguid,'uploading resuls')
+  return resultdir
+  
+
+def postresults(jobguid,requestId,parameter_point,resultlister,backend):
+  log.info('packaging results')
+
+  isolate_results(jobguid,resultlister)
+  log.info('uploading results')
+
+  BACKENDUSER = 'analysis'
+  BACKENDHOST = 'recast-demo'
+  BACKENDBASEPATH = '/home/analysis/recast/recaststorage'
+
 
   #also copy to server
   subprocess.call('''ssh {user}@{host} "mkdir -p {base}/results/{requestId}/{point} && rm -rf {base}/results/{requestId}/{point}/{backend}"'''.format(
@@ -66,36 +111,39 @@ def postresults(jobguid,requestId,parameter_point,resultlister,backend):
   shutil.rmtree(workdir)
   shutil.rmtree(resultdir)
   
-  socketlog(jobguid,'done')
+  log.info('done')
   return requestId
 
-    
-@shared_task
-def prepare_job(jobguid,jobinfo):
-  print "job info is {}".format(jobinfo)
-  print "job uuid is {}".format(jobguid)
-  workdir = 'workdirs/{}'.format(jobguid)
-
-  input_url = jobinfo['run-condition'][0]['lhe-file']
-  socketlog(jobguid,'downloading input files')
-
-  filepath = download_file(input_url,workdir)
-
-  print "downloaded file to: {}".format(filepath)
-  socketlog(jobguid,'downloaded input files')
-
-
-  with zipfile.ZipFile(filepath)as f:
-    f.extractall('{}/inputs'.format(workdir)) 
+def cleanup(ctx):
+  workdir = 'workdirs/{}'.format(ctx['jobguid'])
   
-  return jobguid
+  log.info('cleaning up workdir: {}'.format(workdir))
+  
+  if os.path.isdir(workdir):
+    shutil.rmtree(workdir)
 
 @shared_task
-def prepare_workdir(fileguid,jobguid):
-  workdir = 'workdirs/{}'.format(jobguid)
-  
-  os.makedirs(workdir)
+def run_analysis(setupfunc,onsuccess,teardownfunc,ctx):
+  try:
+    jobguid = ctx['jobguid']
 
-  socketlog(jobguid,'prepared workdir')
+    setupLogging(jobguid)
 
-  return jobguid
+    setupfunc(ctx)
+    try:
+      pluginmodule,entrypoint = ctx['entry_point'].split(':')
+      m = importlib.import_module(pluginmodule)
+      entry = getattr(m,entrypoint)
+    except AttributeError:
+      log.error('could not get entrypoint: {}'.format(ctx['entry_point']))
+      raise
+      
+    log.info('and off we go!')
+    entry(ctx)
+    onsuccess(ctx)
+  except:
+    log.error('something went wrong :(!')
+    raise
+  finally:
+    log.info('''it's a wrap! cleaning up.''')
+    teardownfunc(ctx)

@@ -1,17 +1,10 @@
-import recastapi.request
-import recastbackend.utils
 import importlib
 import pickle
 import pkg_resources
 
 from recastbackend.catalogue import implemented_analyses
-from recastbackend.productionapp import app as celery_app
 
-def agnostic_celery_submit(uuid,parameter,queue,analysis_chain,resultlist,wrapper_func,backend):
-  jobguid,full_chain = wrapper_func(uuid,parameter,analysis_chain,resultlist,queue,backend)
-  
-  result = full_chain.apply_async()
-  return (jobguid,result)
+from recastbackend.productionapp import app
 
 def get_chain_and_queue_and_results(analysis_uuid,backend):
   if not backend in ['dedicated','rivet']:
@@ -40,13 +33,7 @@ def get_chain_and_queue_and_results(analysis_uuid,backend):
     return (queuename, chain, module.resultlist)
 
 def production_celery_submit(uuid,parameter,backend):
-  request_info = recastapi.request.request(uuid)
-  analysis_uuid = request_info['analysis-uuid']
-  
-  queue, analysis_chain, resultlist = get_chain_and_queue_and_results(analysis_uuid,backend)
-  
-  return agnostic_celery_submit(uuid, parameter, queue, analysis_chain, resultlist,
-                                recastbackend.utils.wrapped_chain, backend)
+  pass
 
 def submit_recast_request(uuid,parameter,backend):
   celery_app.set_current()

@@ -1,5 +1,4 @@
 import redis
-from recastbackend.productionapp import app as productionapp
 import msgpack
 import time
 import click
@@ -27,9 +26,9 @@ def yieldsocketmsg_until(pubsub,namespace = '/',breaker = lambda: False):
 
 
 def get_socket_pubsub():
-  red = redis.StrictRedis(host = productionapp.conf['CELERY_REDIS_HOST'],
-                            db = productionapp.conf['CELERY_REDIS_DB'], 
-                          port = productionapp.conf['CELERY_REDIS_PORT'])
+  red = redis.StrictRedis(host = celery.current_app.conf['CELERY_REDIS_HOST'],
+                            db = celery.current_app.conf['CELERY_REDIS_DB'], 
+                          port = celery.current_app.conf['CELERY_REDIS_PORT'])
   pubsub = red.pubsub()
   pubsub.subscribe('socket.io#emitter')
   return pubsub

@@ -13,6 +13,10 @@ setup(
   install_requires = [
     'Celery',
     'Click',
-    'redis'
+    'redis',
+    'socket.io-emitter',
+  ],
+  dependency_links = [
+    'https://github.com/ziyasal/socket.io-python-emitter/tarball/master#egg=socket.io-emitter-0.1.3'
   ]
 )
