@@ -29,5 +29,5 @@ def setupLogging(jobguid):
   recastlogger = RecastLogger(jobguid)
   log.setLevel(logging.INFO)
   log.addHandler(recastlogger)
-
+  return log,recastlogger
   

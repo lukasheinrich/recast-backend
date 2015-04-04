@@ -133,7 +133,7 @@ def run_analysis(setupfunc,onsuccess,teardownfunc,ctx):
   try:
     jobguid = ctx['jobguid']
 
-    setupLogging(jobguid)
+    logger, handler = setupLogging(jobguid)
 
     setupfunc(ctx)
     try:
@@ -153,3 +153,5 @@ def run_analysis(setupfunc,onsuccess,teardownfunc,ctx):
   finally:
     log.info('''it's a wrap! cleaning up.''')
     teardownfunc(ctx)
+    logger.removeHandler(handler)
+    
