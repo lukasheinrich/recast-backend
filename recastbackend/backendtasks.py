@@ -117,10 +117,6 @@ def onsuccess(ctx):
     backend = backend
   )])
 
-  #clean up
-  shutil.rmtree(workdir)
-  shutil.rmtree(resultdir)
-  
   log.info('done')
   return requestId
 
