@@ -77,10 +77,18 @@ def isolate_results(jobguid,resultlister):
   return resultdir
   
 
-def postresults(jobguid,requestId,parameter_point,resultlister,backend):
-  log.info('packaging results')
+def onsuccess(ctx):
+  log.info('success!')
 
-  isolate_results(jobguid,resultlister)
+  jobguid = ctx['jobguid']
+  resultlistname = ctx['results']
+  backend = ctx['backend']
+
+  modulename,attr = resultlistname.split(':')
+  module = importlib.import_module(modulename)
+  resultlister = getattr(module,attr)
+  
+  resultdir = isolate_results(jobguid,resultlister)
   log.info('uploading results')
 
   BACKENDUSER = 'analysis'
