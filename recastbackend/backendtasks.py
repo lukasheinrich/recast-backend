@@ -83,6 +83,8 @@ def onsuccess(ctx):
   jobguid = ctx['jobguid']
   resultlistname = ctx['results']
   backend = ctx['backend']
+  requestId = ctx['requestguid']
+  parameter_point = ctx['parameter_pt']
 
   modulename,attr = resultlistname.split(':')
   module = importlib.import_module(modulename)
