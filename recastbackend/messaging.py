@@ -27,6 +27,10 @@ class RecastLogger(logging.StreamHandler):
   def emit(self, record):
     socketlog(self.jobid,'{} -- {}'.format(record.levelname,record.msg))
 
+def get_stored_messages(jobguid):
+  msglist = jobguid_message_key(jobguid)
+  red = get_redis_from_celery(celery.current_app)
+  return red.lrange(msglist,0,-1)
 
 def setupLogging(jobguid):
   #setup logging

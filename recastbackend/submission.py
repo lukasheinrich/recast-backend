@@ -8,6 +8,11 @@ from recastbackend.catalogue import implemented_analyses
 from recastbackend.backendtasks import run_analysis
 from recastbackend.productionapp import app
 
+from recastbackend.jobstate import persist_job
+
+
+import recastbackend.messaging
+
 import logging
 logging.basicConfig(level = logging.INFO)
 log = logging.getLogger(__name__)
@@ -66,8 +71,13 @@ def production_celery_submit(request_uuid,parameter,backend):
                                       recastbackend.backendtasks.cleanup,ctx),
                                       queue = queue)
 
+  print "persisting job"
   persist_job(ctx,result.id)
 
+  #push initial message
+  recastbackend.messaging.socketlog(ctx['jobguid'],'registered. processed by celery id: {}'.format(result.id))
+
+  
   return (ctx['jobguid'],result)
 
 def submit_recast_request(request_uuid,parameter,backend):
