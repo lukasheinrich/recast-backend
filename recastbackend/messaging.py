@@ -8,7 +8,8 @@ import json
 from recastbackend.jobstate import get_redis_from_celery, jobguid_message_key
 
 def socketlog(jobguid,msg):
-  io  = emitter.Emitter({'client': get_redis_from_celery(celery.current_app)})
+  red = get_redis_from_celery(celery.current_app)
+  io  = emitter.Emitter({'client': red})
 
   msg_data = {'date':datetime.now().strftime('%Y-%m-%d %X'),'msg':msg}
 
