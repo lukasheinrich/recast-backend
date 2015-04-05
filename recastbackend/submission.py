@@ -50,7 +50,7 @@ def get_queue_and_context(request_uuid,parameter,backend):
     ctx.update(
       entry_point   = 'recastrivet.backendtasks:recast',
       results       = 'recastrivet.backendtasks:resultlist',
-      analysis      = analysis
+      analysis      = UUIDtoRivet[analysis_uuid]
     )
 
     return ('rivet_queue',ctx)
@@ -65,6 +65,9 @@ def production_celery_submit(request_uuid,parameter,backend):
                                       recastbackend.backendtasks.onsuccess,
                                       recastbackend.backendtasks.cleanup,ctx),
                                       queue = queue)
+
+  persist_job(ctx,result.id)
+
   return (ctx['jobguid'],result)
 
 def submit_recast_request(request_uuid,parameter,backend):

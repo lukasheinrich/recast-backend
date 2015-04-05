@@ -3,14 +3,18 @@ import celery
 import emitter
 from datetime import datetime
 import logging
+import json
+
+from recastbackend.jobstate import get_redis_from_celery, jobguid_message_key
 
 def socketlog(jobguid,msg):
-  red = redis.StrictRedis(host = celery.current_app.conf['CELERY_REDIS_HOST'],
-                            db = celery.current_app.conf['CELERY_REDIS_DB'], 
-                          port = celery.current_app.conf['CELERY_REDIS_PORT'])
-  io  = emitter.Emitter({'client': red})
+  io  = emitter.Emitter({'client': get_redis_from_celery(celery.current_app)})
 
   msg_data = {'date':datetime.now().strftime('%Y-%m-%d %X'),'msg':msg}
+
+  #store msg in redis
+  msglist = jobguid_message_key(jobguid)
+  red.rpush(msglist,json.dumps(msg_data))
 
   io.Of('/monitor').In(str(jobguid)).Emit('room_msg',msg_data)
 
