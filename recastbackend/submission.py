@@ -4,7 +4,7 @@ import pkg_resources
 import recastapi.request
 import uuid
 import recastbackend.backendtasks
-from recastbackend.catalogue import implemented_analyses
+from recastbackend.catalogue import all_backend_catalogue
 from recastbackend.backendtasks import run_analysis
 from recastbackend.productionapp import app
 
@@ -33,32 +33,22 @@ def get_queue_and_context(request_uuid,parameter,backend):
     backend       = backend,
   )
 
+  if analysis_uuid not in all_backend_catalogue[backend]:
+    raise NotImplementedError
+
+  queuename = all_backend_catalogue[backend][analysis_uuid]['queue']
+  workflownamemodule = all_backend_catalogue[backend][analysis_uuid]['workflow']
+  ctx.update(
+     entry_point   = '{}:recast'.format(workflownamemodule),
+     results       = '{}:resultlist'.format(workflownamemodule)
+  )
+ 
   if backend == 'dedicated':
-    if analysis_uuid not in implemented_analyses:
-      raise NotImplementedError
-
-    queuename = implemented_analyses[analysis_uuid]['queue']
-    workflownamemodule = implemented_analyses[analysis_uuid]['workflow']
-    ctx.update(
-      entry_point   = '{}:recast'.format(workflownamemodule),
-      results       = '{}:resultlist'.format(workflownamemodule)
-    )
-
     return (queuename, ctx)
 
   if backend == 'rivet':
-    rivetnameToUUID = pickle.loads(pkg_resources.resource_string('recastrivet','rivetmap.pickle'))
-    UUIDtoRivet = {v:k for k,v in rivetnameToUUID.iteritems()}
-    if analysis_uuid not in UUIDtoRivet:
-      raise NotImplementedError
-
-    ctx.update(
-      entry_point   = 'recastrivet.backendtasks:recast',
-      results       = 'recastrivet.backendtasks:resultlist',
-      analysis      = UUIDtoRivet[analysis_uuid]
-    )
-
-    return ('rivet_queue',ctx)
+    ctx.update(analysis = all_backend_catalogue[backend][analysis_uuid]['analysis'])
+    return (queuename, ctx)
 
 
 def production_celery_submit(request_uuid,parameter,backend):

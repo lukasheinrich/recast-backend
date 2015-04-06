@@ -40,3 +40,29 @@ def persist_job(ctx,result_id):
   #map job id to celery id
   map_job_to_celery(jobguid,result_id)
 
+
+def get_celery_id(jobguid):
+  red = get_redis_from_celery(celery.current_app)
+  return red.get(jobguid_to_celery_key(jobguid))
+
+def get_celery_status(celery_id):
+  return celery.result.AsyncResult(celery_id).state
+
+
+def get_processings(request_uuid,parameter_pt,backend):
+  red = get_redis_from_celery(celery.current_app)
+  jobs = red.lrange(joblist_key(request_uuid,parameter_pt,backend),0,-1)
+  return [{'job:':job,'backend':backend,'celery':get_celery_status(get_celery_id(job))} for job in jobs]
+  
+import recastapi.request
+import recastbackend.catalogue
+
+
+def get_flattened_jobs(request_uuid,parameter_pt):
+  request_info = recastapi.request.request(request_uuid)
+  analysis_uuid = request_info['analysis-uuid']
+  backends = recastbackend.catalogue.getBackends(analysis_uuid)
+  nested =  [get_processings(request_uuid,parameter_pt,backend) for backend in backends]
+
+  #flatten
+  return [x for sublist in nested for x in sublist]
