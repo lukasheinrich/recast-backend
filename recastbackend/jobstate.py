@@ -2,6 +2,10 @@ import celery
 import celery.result
 import redis
 
+import recastapi.request
+import recastbackend.catalogue
+
+
 def get_redis_from_celery(app):
   return redis.StrictRedis(host = app.conf['CELERY_REDIS_HOST'],
                             db = app.conf['CELERY_REDIS_DB'], 
@@ -47,19 +51,18 @@ def get_celery_id(jobguid):
   return red.get(jobguid_to_celery_key(jobguid))
 
 def get_celery_status(celery_id):
+  print "current celery is: {}".format(celery.current_app)
+  print "getting result for {}".format(celery_id)
   return celery.result.AsyncResult(celery_id).state
 
 
 def get_processings(request_uuid,parameter_pt,backend):
   red = get_redis_from_celery(celery.current_app)
   jobs = red.lrange(joblist_key(request_uuid,parameter_pt,backend),0,-1)
-  return [{'job:':job,'backend':backend,'celery':get_celery_status(get_celery_id(job))} for job in jobs]
+  return [{'job':job,'backend':backend,'celery':get_celery_status(get_celery_id(job))} for job in jobs]
   
-import recastapi.request
-import recastbackend.catalogue
-
-
-def get_flattened_jobs(request_uuid,parameter_pt):
+def get_flattened_jobs(app,request_uuid,parameter_pt):
+  app.set_current()
   request_info = recastapi.request.request(request_uuid)
   analysis_uuid = request_info['analysis-uuid']
   backends = recastbackend.catalogue.getBackends(analysis_uuid)
