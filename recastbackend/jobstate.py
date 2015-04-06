@@ -1,4 +1,5 @@
 import celery
+import celery.result
 import redis
 
 def get_redis_from_celery(app):
