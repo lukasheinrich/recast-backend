@@ -56,10 +56,11 @@ def production_celery_submit(request_uuid,parameter,backend):
 
   queue,ctx = get_queue_and_context(request_uuid,parameter,backend)
   
+  # submit the job (with countdown to let this call finish)
   result =  run_analysis.apply_async((recastbackend.backendtasks.setup,
                                       recastbackend.backendtasks.onsuccess,
                                       recastbackend.backendtasks.cleanup,ctx),
-                                      queue = queue)
+                                      queue = queue, countdown=10)
 
   print "persisting job"
   persist_job(ctx,result.id)
