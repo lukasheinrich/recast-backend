@@ -20,6 +20,6 @@ setup(
   ],
   dependency_links = [
     'https://github.com/ziyasal/socket.io-python-emitter/tarball/master#egg=socket.io-emitter-0.1.3',
-    'https://github.com/recast-hep/recast-api/tarball/master#egg=recastapi-0.0.1'
+    'https://github.com/recast-hep/recast-api/tarball/master#egg=recast-api-0.0.1'
   ]
 )
