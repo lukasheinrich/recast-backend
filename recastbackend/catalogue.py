@@ -8,12 +8,12 @@ implemented_analyses = {
         'queue':'dmhiggs_queue',
         'blueprint':'recastdmhiggs.blueprint:blueprint'
         },
-  # '3ad4efdb-0170-fb94-75a5-8a1279386745' :
-  #      {
-  #       'workflow':'recasthype.backendtasks',
-  #       'queue':'hype_queue',
-  #       'blueprint':'recasthype.blueprint:blueprint'
-  #      },
+  '3ad4efdb-0170-fb94-75a5-8a1279386745' :
+       {
+        'workflow':'recasthype.backendtasks',
+        'queue':'hype_queue',
+        'blueprint':'recasthype.blueprint:blueprint'
+       },
   '19c471ff-2514-eb44-0d82-59563cc38dab' :
       {
        'workflow':'recastsusyhiggs.backendtasks',
@@ -23,7 +23,7 @@ implemented_analyses = {
 }
 
 def rivet_info():
-  rivetnameToUUID = pickle.loads(pkg_resources.resource_string('recastrivet','rivetmap.pickle'))
+  rivetnameToUUID = pickle.loads(pkg_resources.resource_string('recastbackend','rivetmap.pickle'))
   return {v:{'workflow' :'recastrivet.backendtasks',
              'queue'    :'rivet_queue',
              'blueprint':'recastrivet.blueprint:blueprint',
