@@ -1,4 +1,3 @@
-import redis
 import celery
 import emitter
 from datetime import datetime

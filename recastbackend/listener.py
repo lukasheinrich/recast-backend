@@ -2,6 +2,7 @@ import redis
 import msgpack
 import time
 import click
+import celery
 
 
 def yield_redis_msg_until(pubsub,breaker):
