@@ -10,6 +10,7 @@ setup(
            'recast-listen  = recastbackend.listener:listen'
          ]
       },
+  include_package_data = True,
   install_requires = [
     'Celery',
     'Click',
