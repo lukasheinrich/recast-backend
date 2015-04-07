@@ -17,6 +17,7 @@ setup(
     'redis',
     'recast-api',
     'socket.io-emitter',
+    'requests',
   ],
   dependency_links = [
     'https://github.com/ziyasal/socket.io-python-emitter/tarball/master#egg=socket.io-emitter-0.1.3',
