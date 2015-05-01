@@ -19,7 +19,13 @@ implemented_analyses = {
        'workflow':'recastsusyhiggs.backendtasks',
        'queue':'susy_queue',
        'blueprint':'recastsusyhiggs.blueprint:blueprint'
-      }
+      },
+  '09986001-6348-2fa4-59f8-f1d1b4a65776' :
+      {
+       'workflow':'recastfullchain.backendtasks',
+       'queue':'fullchain_queue',
+       'blueprint':'recastfullchain.blueprint:blueprint'
+      },
 }
 
 def rivet_info():
