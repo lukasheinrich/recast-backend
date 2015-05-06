@@ -8,6 +8,24 @@ import requests
 import recastapi.request
 from recastbackend.messaging import setupLogging
 
+from fabric.api import env
+from fabric.operations import run, put
+from fabric.tasks import execute
+
+env.use_ssh_config = True
+
+def upload_results(resultdir,requestId,point,backend):
+  #make sure the directory for this point is present
+  
+  def fabric_command():
+    base = '/home/analysis/recast/recaststorage/results/{requestId}/{point}'.format(requestId = requestId, point = point)
+    run('mkdir -p {}'.format(base))
+    run('(test -d {base}/{backend} && rm -rf {base}/{backend}) || echo "not present yet" '.format(base = base,backend = backend))
+    run('mkdir {base}/{backend}'.format(base = base, backend = backend))
+    put('{}/*'.format(resultdir),'{base}/{backend}'.format(base = base, backend = backend))
+  
+  execute(fabric_command,hosts = 'analysis@recast-demo')
+
 from celery import shared_task
 
 log = logging.getLogger('RECAST')
@@ -93,29 +111,7 @@ def onsuccess(ctx):
   resultdir = isolate_results(jobguid,resultlister)
   log.info('uploading results')
 
-  BACKENDUSER = 'analysis'
-  BACKENDHOST = 'recast-demo'
-  BACKENDBASEPATH = '/home/analysis/recast/recaststorage'
-
-
-  #also copy to server
-  subprocess.call('''ssh {user}@{host} "mkdir -p {base}/results/{requestId}/{point} && rm -rf {base}/results/{requestId}/{point}/{backend}"'''.format(
-    user = BACKENDUSER,
-    host = BACKENDHOST,
-    base = BACKENDBASEPATH,
-    requestId = requestId,
-    point = parameter_point,
-    backend = backend
-    )
-  ,shell = True)
-  subprocess.call(['scp', '-r', resultdir,'{user}@{host}:{base}/results/{requestId}/{point}/{backend}'.format(
-    user = BACKENDUSER,
-    host = BACKENDHOST,
-    base = BACKENDBASEPATH,
-    requestId = requestId,
-    point = parameter_point,
-    backend = backend
-  )])
+  upload_results(resultdir,requestId,parameter_point,backend)
 
   log.info('done')
   return requestId
