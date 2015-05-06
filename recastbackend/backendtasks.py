@@ -1,7 +1,6 @@
 import zipfile
 import os
 import shutil
-import subprocess
 import importlib
 import logging
 import requests
