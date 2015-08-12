@@ -5,6 +5,7 @@ import importlib
 import logging
 import requests
 import recastapi.request
+import glob
 from recastbackend.messaging import setupLogging
 
 from fabric.api import env
@@ -83,13 +84,17 @@ def isolate_results(jobguid,resultlister):
   os.makedirs(resultdir)  
 
   for result,resultpath in ((r,os.path.abspath('{}/{}'.format(workdir,r))) for r in resultlister()):
-    if os.path.isfile(resultpath):
-      shutil.copyfile(resultpath,'{}/{}'.format(resultdir,result))
-    elif os.path.isdir(resultpath):
-      shutil.copytree(resultpath,'{}/{}'.format(resultdir,result))
-    else:
-      log.error('result does not exist or is neither file nor folder!')
-      raise RuntimeError
+    globresult = glob.glob(resultpath)
+    if not globresult:
+      log.warning('no matches for glob {}'.format(resultpath))
+    for thing in globresult:
+      if os.path.isfile(thing):
+        shutil.copyfile(thing,'{}/{}'.format(resultdir,os.path.basename(thing)))
+      elif os.path.isdir(thing):
+        shutil.copytree(thing,'{}/{}'.format(resultdir,os.path.basename(thing)))
+      else:
+        log.error('result {} (path: {}, glob element: {})  does not exist or is neither file nor folder!'.format(result,resultpath,thing))
+        raise RuntimeError
 
   return resultdir
   
