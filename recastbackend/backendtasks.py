@@ -88,7 +88,7 @@ def isolate_results(jobguid,resultlister):
     elif os.path.isdir(resultpath):
       shutil.copytree(resultpath,'{}/{}'.format(resultdir,result))
     else:
-      log.info('result does not exist or is neither file nor folder!')
+      log.error('result does not exist or is neither file nor folder!')
       raise RuntimeError
 
   return resultdir
