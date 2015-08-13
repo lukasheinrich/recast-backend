@@ -26,6 +26,18 @@ def upload_results(resultdir,requestId,point,backend):
   
   execute(fabric_command,hosts = 'analysis@recast-demo')
 
+def generic_upload_results(resultdir,user,host,port,base,backend):
+  #make sure the directory for this point is present
+
+  def fabric_command():
+    run('mkdir -p {}'.format(base))
+    run('(test -d {base}/{backend} && rm -rf {base}/{backend}) || echo "not present yet" '.format(base = base,backend = backend))
+    run('mkdir {base}/{backend}'.format(base = base, backend = backend))
+    put('{}/*'.format(resultdir),'{base}/{backend}'.format(base = base, backend = backend))
+
+  execute(fabric_command,hosts = '{user}@{host}:{port}'.format(user = user,host = host,port = port))
+
+
 from celery import shared_task
 
 log = logging.getLogger('RECAST')
@@ -42,19 +54,20 @@ def download_file(url,download_dir):
                 f.flush()
     return download_path    
 
-def prepare_job(jobguid,jobinfo):
-  workdir = 'workdirs/{}'.format(jobguid)
 
-  input_url = jobinfo['run-condition'][0]['lhe-file']
-  log.info('downloading input files')
+def prepare_job_fromURL(jobguid,input_url):
+  workdir = 'workdirs/{}'.format(jobguid)
 
   filepath = download_file(input_url,workdir)
 
   log.info('downloaded done (at: {})'.format(filepath))
 
   with zipfile.ZipFile(filepath)as f:
-    f.extractall('{}/inputs'.format(workdir)) 
+    f.extractall('{}/inputs'.format(workdir))
 
+def prepare_job(jobguid,jobinfo):
+  input_url = jobinfo['run-condition'][0]['lhe-file']
+  prepare_job_fromURL(jobguid,input_url)
 
 def setup(ctx):
   jobguid = ctx['jobguid']
@@ -66,10 +79,19 @@ def setup(ctx):
   request_info = recastapi.request.request(request_uuid)
   jobinfo = request_info['parameter-points'][parameter_pt]
 
-  prepare_workdir(request_uuid,jobguid)
+  prepare_workdir(jobguid)
   prepare_job(jobguid,jobinfo)
 
-def prepare_workdir(fileguid,jobguid):
+def setupFromURL(ctx):
+  jobguid = ctx['jobguid']
+
+  log.info('setting up for context {}'.format(ctx))
+
+  prepare_workdir(jobguid)
+  prepare_job_fromURL(jobguid,ctx['inputURL'])
+
+
+def prepare_workdir(jobguid):
   workdir = 'workdirs/{}'.format(jobguid)
   os.makedirs(workdir)
   log.info('prepared workdir')
@@ -120,6 +142,26 @@ def onsuccess(ctx):
   log.info('done')
   return requestId
 
+import glob
+import os
+def dummy_onsuccess(ctx):
+  log.info('success!')
+
+  jobguid = ctx['jobguid']
+  resultlistname = ctx['results']
+  backend = ctx['backend']
+
+  modulename,attr = resultlistname.split(':')
+  module = importlib.import_module(modulename)
+  resultlister = getattr(module,attr)
+
+  resultdir = isolate_results(jobguid,resultlister)
+  log.info('uploading results')
+  generic_upload_results(resultdir,os.environ['RECAST_SHIP_USER'],os.environ['RECAST_SHIP_HOST'],os.environ['RECAST_SHIP_PORT'],os.environ['RECAST_SHIP_BASE'],backend)
+
+  log.info('done with uploading results')
+
+
 def cleanup(ctx):
   workdir = 'workdirs/{}'.format(ctx['jobguid'])
   
@@ -146,6 +188,7 @@ def run_analysis(setupfunc,onsuccess,teardownfunc,ctx):
       
     log.info('and off we go!')
     entry(ctx)
+    log.info('back from entry point run onsuccess')
     onsuccess(ctx)
   except:
     log.error('something went wrong :(!')
