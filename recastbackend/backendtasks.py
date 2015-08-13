@@ -142,8 +142,6 @@ def onsuccess(ctx):
   log.info('done')
   return requestId
 
-import glob
-import os
 def dummy_onsuccess(ctx):
   log.info('success!')
 

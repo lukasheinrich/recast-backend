@@ -6,8 +6,9 @@ setup(
   packages = find_packages(),
   entry_points={
         'console_scripts': [
-           'recast-prodsub = recastbackend.submitcli:submit',
-           'recast-listen  = recastbackend.listener:listen'
+           'recast-prodsub   = recastbackend.submitcli:submit',
+           'recast-localsub  = recastbackend.fromenvsubmit:submit',
+           'recast-listen    = recastbackend.listener:listen',
          ]
       },
   include_package_data = True,
