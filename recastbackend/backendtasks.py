@@ -142,9 +142,7 @@ def onsuccess(ctx):
   log.info('done')
   return requestId
 
-import glob
-import os
-def dummy_onsuccess(ctx):
+def generic_onsuccess(ctx):
   log.info('success!')
 
   jobguid = ctx['jobguid']
@@ -157,7 +155,11 @@ def dummy_onsuccess(ctx):
 
   resultdir = isolate_results(jobguid,resultlister)
   log.info('uploading results')
-  generic_upload_results(resultdir,os.environ['RECAST_SHIP_USER'],os.environ['RECAST_SHIP_HOST'],os.environ['RECAST_SHIP_PORT'],os.environ['RECAST_SHIP_BASE'],backend)
+
+
+  shipout_base = ctx['shipout_base']
+
+  generic_upload_results(resultdir,os.environ['RECAST_SHIP_USER'],os.environ['RECAST_SHIP_HOST'],os.environ['RECAST_SHIP_PORT'],shipout_base,backend)
 
   log.info('done with uploading results')
 
