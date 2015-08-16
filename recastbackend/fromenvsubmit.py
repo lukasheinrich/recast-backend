@@ -29,6 +29,8 @@ def submit_dedicated(analysis_name,queue,input_url,outputdir):
                                        queue = queue)
     return jobguid,result
 
+from recastbackend.jobstate import map_job_to_celery
+
 @click.command()
 @click.argument('input_url')
 @click.argument('name')
@@ -43,4 +45,5 @@ def submit(input_url,name,queue,outputdir):
 
     app.set_current()
     jobguid,result =  submit_dedicated(analysis_name,queue,input_url,os.path.abspath(outputdir))
+    map_job_to_celery(jobguid,result.id)
     return wait_and_echo(result)

@@ -34,8 +34,15 @@ def get_socket_pubsub():
   pubsub.subscribe('socket.io#emitter')
   return pubsub
 
-click.command()
-def listen():
+import importlib
+
+@click.command()
+@click.argument('celeryapp')
+def listen(celeryapp):
+  module,attr = celeryapp.split(':')
+  mod = importlib.import_module(module)
+  app = getattr(mod,attr)
+  app.set_current()
   while True:
     try:
       pubsub = get_socket_pubsub()
@@ -50,6 +57,6 @@ def listen():
       click.echo('could not connect. sleeping.')
       time.sleep(1)
     except KeyboardInterrupt:
-      click.echo('Goodbye')
+      click.echo('\nGoodbye!')
       return
 

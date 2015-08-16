@@ -9,6 +9,8 @@ setup(
            'recast-prodsub   = recastbackend.submitcli:submit',
            'recast-localsub  = recastbackend.fromenvsubmit:submit',
            'recast-listen    = recastbackend.listener:listen',
+           'recast-track     = recastbackend.tracker:track',
+
          ]
       },
   include_package_data = True,
