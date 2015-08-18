@@ -96,7 +96,7 @@ def prepare_workdir(jobguid):
   os.makedirs(workdir)
   log.info('prepared workdir')
 
-def isolate_results(jobguid,resultlister):
+def isolate_results(jobguid,resultlist):
   workdir = 'workdirs/{}'.format(jobguid)
   resultdir = '{}/results'.format(workdir)
   
@@ -105,7 +105,7 @@ def isolate_results(jobguid,resultlister):
     
   os.makedirs(resultdir)  
 
-  for result,resultpath in ((r,os.path.abspath('{}/{}'.format(workdir,r))) for r in resultlister()):
+  for result,resultpath in ((r,os.path.abspath('{}/{}'.format(workdir,r))) for r in resultlist):
     globresult = glob.glob(resultpath)
     if not globresult:
       log.warning('no matches for glob {}'.format(resultpath))
@@ -121,20 +121,30 @@ def isolate_results(jobguid,resultlister):
   return resultdir
   
 
+def getresultlist(ctx):
+  """
+  result list can either be provided as module:attricbut nullary function
+  under the key 'results' or as an actual list of strings under key 'resultlist'  
+  """
+  if 'results' in ctx:
+    resultlistname = ctx['results']
+    modulename,attr = resultlistname.split(':')
+    module = importlib.import_module(modulename)
+    resultlister = getattr(module,attr)    
+    return resultlister()
+  if 'resultlist' in ctx:
+    return ctx['resultlist']
+  
+
 def onsuccess(ctx):
   log.info('success!')
 
   jobguid = ctx['jobguid']
-  resultlistname = ctx['results']
   backend = ctx['backend']
   requestId = ctx['requestguid']
   parameter_point = ctx['parameter_pt']
 
-  modulename,attr = resultlistname.split(':')
-  module = importlib.import_module(modulename)
-  resultlister = getattr(module,attr)
-  
-  resultdir = isolate_results(jobguid,resultlister)
+  resultdir = isolate_results(jobguid,getresultlist(ctx))
   log.info('uploading results')
 
   upload_results(resultdir,requestId,parameter_point,backend)
@@ -146,16 +156,10 @@ def generic_onsuccess(ctx):
   log.info('success!')
 
   jobguid = ctx['jobguid']
-  resultlistname = ctx['results']
   backend = ctx['backend']
 
-  modulename,attr = resultlistname.split(':')
-  module = importlib.import_module(modulename)
-  resultlister = getattr(module,attr)
-
-  resultdir = isolate_results(jobguid,resultlister)
+  resultdir = isolate_results(jobguid,getresultlist(ctx))
   log.info('uploading results')
-
 
   shipout_base = ctx['shipout_base']
 
