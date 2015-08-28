@@ -36,7 +36,8 @@ from recastbackend.jobstate import map_job_to_celery
 @click.argument('name')
 @click.argument('queue')
 @click.argument('outputdir')
-def submit(input_url,name,queue,outputdir):
+@click.option('--track/--no-track',default = False)
+def submit(input_url,name,queue,outputdir,track):
     if not name in analysis_names_map:
       click.secho('analysis not known', fg = 'red')
       return
@@ -46,4 +47,7 @@ def submit(input_url,name,queue,outputdir):
     app.set_current()
     jobguid,result =  submit_dedicated(analysis_name,queue,input_url,os.path.abspath(outputdir))
     map_job_to_celery(jobguid,result.id)
-    return wait_and_echo(result)
+    if track:
+      return wait_and_echo(result)
+    else:
+      click.secho('submitted job with guid: {}'.format(jobguid),fg = 'green')
