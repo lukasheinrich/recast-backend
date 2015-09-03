@@ -4,7 +4,6 @@ import datetime
 import click
 import importlib
 from recastbackend.listener import wait_and_echo
-from recastbackend.backendtasks import run_analysis
 from recastbackend.jobstate import get_result_obj
 from recastbackend.messaging import get_stored_messages
 

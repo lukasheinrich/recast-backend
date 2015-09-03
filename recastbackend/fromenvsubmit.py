@@ -1,5 +1,4 @@
 import click
-import uuid
 import os
 
 from recastbackend.fromenvapp import app
