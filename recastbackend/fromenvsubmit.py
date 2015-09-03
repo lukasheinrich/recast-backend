@@ -32,6 +32,6 @@ def submit(input_url,name,queue,outputdir,track):
     map_job_to_celery(jobguid,result.id)
     click.secho('submitted job with guid: {}'.format(jobguid),fg = 'green')
     if track:
-      for msgdata,_ in yield_from_celery(app,jobguid, lambda: result.ready()):
-        click.secho('{date} :: {msg}'.format(**msgdata))
+        for msgdata,_ in yield_from_celery(app,jobguid, lambda: result.ready()):
+            click.secho('{date} :: {msg}'.format(**msgdata))
           

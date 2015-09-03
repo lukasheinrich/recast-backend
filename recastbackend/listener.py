@@ -42,7 +42,7 @@ def get_socket_pubsub(celery_app):
 def yield_from_celery(app, room = None, breaker = lambda: False):
   pubsub = get_socket_pubsub(app)
   for rooms,msgdata in yield_room_msg_until(pubsub,room,breaker):
-    yield rooms,msgdata
+    yield msgdata,rooms
 
 def wait_and_echo(result, room = None):
   for msgdata,rooms in yield_from_celery(celery.current_app,room, lambda: result.ready()):
