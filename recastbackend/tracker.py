@@ -1,31 +1,36 @@
-import recastbackend.messaging
+
 import json
 import datetime
 import click
 import importlib
-from recastbackend.submitter import wait_and_echo
+from recastbackend.listener import wait_and_echo
 from recastbackend.backendtasks import run_analysis
-from recastbackend.jobstate import get_celery_id 
-
+from recastbackend.jobstate import get_result_obj
+from recastbackend.messaging import get_stored_messages
 
 @click.command()
-@click.argument('celeryapp')
 @click.argument('jobguid')
+@click.option('-c','--celeryapp',default = 'recastbackend.fromenvapp:app')
 def track(celeryapp,jobguid):
-  module,attr = celeryapp.split(':')
-  mod = importlib.import_module(module)
-  app = getattr(mod,attr)
-  app.set_current()
-
-  stored = recastbackend.messaging.get_stored_messages(jobguid)
-  click.secho('what happened so far',fg = 'white')
-  for m in stored:
-    msg   = click.style('{date} -- {msg}'.format(**json.loads(m)),fg = 'white')
-    click.secho(msg)
-
-  celery_id = get_celery_id(jobguid)
-  result = run_analysis.AsyncResult(celery_id)
-
-  click.secho('tuning in live at {}: '.format(datetime.datetime.now().strftime('%Y-%m-%d %X')), fg = 'green')
-  wait_and_echo(result, room = jobguid)
-
+  try:
+    module,attr = celeryapp.split(':')
+    mod = importlib.import_module(module)
+    app = getattr(mod,attr)
+    app.set_current()
+    
+    stored = get_stored_messages(jobguid)
+    click.secho('=====================',fg = 'black')
+    click.secho('What happened so far:',fg = 'black')
+    click.secho('=====================',fg = 'black')
+    for m in stored:
+      msg   = click.style('{date} -- {msg}'.format(**json.loads(m)),fg = 'black')
+      click.secho(msg)
+      
+    click.secho('=====================',fg = 'green')
+    click.secho('Tuning in live at {}: '.format(datetime.datetime.now().strftime('%Y-%m-%d %X')), fg = 'green')
+    click.secho('=====================',fg = 'green')
+    wait_and_echo(get_result_obj(jobguid), room = jobguid)
+    
+  except KeyboardInterrupt:
+    click.secho('bye bye.')
+    return

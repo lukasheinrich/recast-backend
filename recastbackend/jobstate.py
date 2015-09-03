@@ -25,7 +25,6 @@ def register_job(request_uuid,parameter_pt,backend,jobguid):
   red = get_redis_from_celery(celery.current_app)
   joblist = joblist_key(request_uuid,parameter_pt,backend)
   red.rpush(joblist,jobguid) 
-  print "pushed onto {} the value {}".format(joblist,jobguid)
   
 def map_job_to_celery(jobguid,asyncresult_id):
   #map job id to celery id
@@ -33,9 +32,7 @@ def map_job_to_celery(jobguid,asyncresult_id):
   
   jobtocelery = jobguid_to_celery_key(jobguid)
   red.set(jobtocelery,asyncresult_id)
-  print "mapped jobguid to celery"
   
-
 def persist_job(ctx,result_id):
   request_uuid,parameter,backend,jobguid = ctx['requestguid'],ctx['parameter_pt'],ctx['backend'],ctx['jobguid']
 
@@ -50,9 +47,12 @@ def get_celery_id(jobguid):
   red = get_redis_from_celery(celery.current_app)
   return red.get(jobguid_to_celery_key(jobguid))
 
+def get_result_obj(jobguid):
+  celery_id = get_celery_id(jobguid) 
+  result = celery.result.AsyncResult(celery_id)
+  return result
+
 def get_celery_status(celery_id):
-  print "current celery is: {}".format(celery.current_app)
-  print "getting result for {}".format(celery_id)
   return celery.result.AsyncResult(celery_id).state
 
 

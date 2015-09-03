@@ -1,6 +1,6 @@
 import click
 from recastbackend.submission import submit_recast_request
-from recastbackend.submitter import wait_and_echo
+from recastbackend.listener import wait_and_echo
 from recastbackend.productionapp import app
 
 @click.command()

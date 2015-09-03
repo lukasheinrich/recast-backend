@@ -12,6 +12,8 @@ from fabric.api import env
 from fabric.operations import run, put
 from fabric.tasks import execute
 
+from celery import shared_task
+
 env.use_ssh_config = True
 
 def upload_results(resultdir,requestId,point,backend):
@@ -38,7 +40,6 @@ def generic_upload_results(resultdir,user,host,port,base,backend):
   execute(fabric_command,hosts = '{user}@{host}:{port}'.format(user = user,host = host,port = port))
 
 
-from celery import shared_task
 
 log = logging.getLogger('RECAST')
 
