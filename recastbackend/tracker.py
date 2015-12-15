@@ -1,9 +1,8 @@
-
 import json
 import datetime
 import click
 import importlib
-from recastbackend.listener import wait_and_echo
+from recastbackend.listener import yield_from_celery
 from recastbackend.jobstate import get_result_obj
 from recastbackend.messaging import get_stored_messages
 
@@ -28,8 +27,11 @@ def track(celeryapp,jobguid):
     click.secho('=====================',fg = 'green')
     click.secho('Tuning in live at {}: '.format(datetime.datetime.now().strftime('%Y-%m-%d %X')), fg = 'green')
     click.secho('=====================',fg = 'green')
-    wait_and_echo(get_result_obj(jobguid), room = jobguid)
-    
+  
+    result = get_result_obj(jobguid)
+    for msgdata,_ in yield_from_celery(app,jobguid, lambda: result.ready()):
+      click.secho('{date} :: {msg}'.format(**msgdata))
+  
   except KeyboardInterrupt:
     click.secho('bye bye.')
     return

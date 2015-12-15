@@ -69,16 +69,19 @@ def production_celery_submit(request_uuid,parameter,backend):
   return (ctx['jobguid'],result)
 
 
-def submit_generic_dedicated(analysis_name,queue,input_url,outputdir):
+def submit_generic_dedicated(analysis_name,queue,input_url,outputdir,resultlist = None):
     jobguid = str(uuid.uuid1())
 
     ctx = {'jobguid': jobguid,
             'inputURL':input_url,
             'entry_point':'{}:recast'.format(analysis_name),
-            'results':
-            '{}:resultlist'.format(analysis_name),
             'backend':'dedicated',
             'shipout_base':outputdir}
+
+    if resultlist:
+	ctx.update(resultlist = resultlist)
+    else:
+	ctx.update(results = '{}:resultlist'.format(analysis_name))
 
     result = run_analysis.apply_async((recastbackend.backendtasks.setupFromURL,
                                        recastbackend.backendtasks.generic_onsuccess,
