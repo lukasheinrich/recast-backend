@@ -187,6 +187,7 @@ def run_analysis(setupfunc,onsuccess,teardownfunc,ctx):
     setupfunc(ctx)
     try:
       pluginmodule,entrypoint = ctx['entry_point'].split(':')
+      log.info('setting up entry point {}'.format(ctx['entry_point']))
       m = importlib.import_module(pluginmodule)
       entry = getattr(m,entrypoint)
     except AttributeError:
