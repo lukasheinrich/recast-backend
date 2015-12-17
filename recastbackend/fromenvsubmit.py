@@ -8,7 +8,7 @@ from recastbackend.listener import yield_from_celery
 
 
 analysis_names_map = {
-  'EwkTwoLepton':'recastdilepton.backendtasks'
+  'EwkTwoLepton':{'module':'recastcap.backendtasks','resultlist':['workflow.gif','results.yaml','out.yield']}
 }
 
 @click.command()
@@ -22,13 +22,15 @@ def submit(input_url,name,queue,outputdir,track):
       click.secho('analysis not known', fg = 'red')
       return
     
-    analysis_name = analysis_names_map[name]
+    analysis_name = analysis_names_map[name]['module']
+    resultlist = analysis_names_map[name]['resultlist']
     
     app.set_current()
     jobguid,result =  submit_generic_dedicated(analysis_name,
                                                queue,
                                                input_url,
-                                               os.path.abspath(outputdir))
+                                               os.path.abspath(outputdir),
+					       resultlist = resultlist)
     map_job_to_celery(jobguid,result.id)
     click.secho('submitted job with guid: {}'.format(jobguid),fg = 'green')
     if track:
