@@ -6,6 +6,8 @@ import logging
 import requests
 import recastapi.request
 import glob
+import socket
+
 from recastbackend.messaging import setupLogging
 
 from fabric.api import env
@@ -179,6 +181,7 @@ def cleanup(ctx):
 
 @shared_task
 def run_analysis(setupfunc,onsuccess,teardownfunc,ctx):
+  log.info('running analysis on worker: {}'.format(socket.gethostname()))
   try:
     jobguid = ctx['jobguid']
 
