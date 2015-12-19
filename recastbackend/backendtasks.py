@@ -181,11 +181,11 @@ def cleanup(ctx):
 
 @shared_task
 def run_analysis(setupfunc,onsuccess,teardownfunc,ctx):
-  log.info('running analysis on worker: {}'.format(socket.gethostname()))
   try:
     jobguid = ctx['jobguid']
 
     logger, handler = setupLogging(jobguid)
+    log.info('running analysis on worker: {}'.format(socket.gethostname()))
 
     setupfunc(ctx)
     try:
