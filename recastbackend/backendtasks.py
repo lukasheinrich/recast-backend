@@ -173,11 +173,19 @@ def generic_onsuccess(ctx):
 
 def cleanup(ctx):
   workdir = 'workdirs/{}'.format(ctx['jobguid'])
-  
+
   log.info('cleaning up workdir: {}'.format(workdir))
   
   if os.path.isdir(workdir):
-    shutil.rmtree(workdir)
+    #shutil.rmtree(workdir)
+    rescuedir = '/tmp/recast_quarantine/{}'.format(ctx['jobguid'])
+    shutil.move(workdir,rescuedir)
+    assert not os.path.isdir(workdir)
+    for p,d,f in os.walk(rescuedir):
+      for fl in f:
+        if not (fl.endswith('.log') or fl.endswith('.txt')):
+          os.remove('/'.join([p,fl]))
+
 
 @shared_task
 def run_analysis(setupfunc,onsuccess,teardownfunc,ctx):
@@ -203,6 +211,7 @@ def run_analysis(setupfunc,onsuccess,teardownfunc,ctx):
     onsuccess(ctx)
   except:
     log.error('something went wrong :(!')
+    #re-raise exception
     raise
   finally:
     log.info('''it's a wrap! cleaning up.''')
