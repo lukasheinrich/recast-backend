@@ -6,7 +6,6 @@ from recastbackend.submission import submit_generic_dedicated
 from recastbackend.jobstate import map_job_to_celery
 from recastbackend.listener import yield_from_celery
 
-
 analysis_names_map = {
   'EwkTwoLepton':{'module':'recastcap.backendtasks','resultlist':['workflow.gif','results.yaml','out.yield']}
 }

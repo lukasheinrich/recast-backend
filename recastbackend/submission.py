@@ -22,31 +22,30 @@ def get_queue_and_context(request_uuid,parameter,backend):
   request_info = recastapi.request.request(request_uuid)
   analysis_uuid = request_info['analysis-uuid']
 
-    
   ctx = dict(
     jobguid       = str(uuid.uuid1()),
     requestguid   = request_uuid,
     parameter_pt  = parameter,
     backend       = backend,
   )
-
+    
   if analysis_uuid not in all_backend_catalogue[backend]:
     raise NotImplementedError
-
+    
   queuename = all_backend_catalogue[backend][analysis_uuid]['queue']
   workflownamemodule = all_backend_catalogue[backend][analysis_uuid]['workflow']
   ctx.update(
      entry_point   = '{}:recast'.format(workflownamemodule),
      results       = '{}:resultlist'.format(workflownamemodule)
   )
- 
+     
   if backend == 'dedicated':
     return (queuename, ctx)
-
+    
   if backend == 'rivet':
     ctx.update(analysis = all_backend_catalogue[backend][analysis_uuid]['analysis'])
     return (queuename, ctx)
-
+    
 
 def production_celery_submit(request_uuid,parameter,backend):
   app.set_current()
@@ -72,23 +71,24 @@ def production_celery_submit(request_uuid,parameter,backend):
 def submit_generic_dedicated(analysis_name,queue,input_url,outputdir,resultlist = None):
     jobguid = str(uuid.uuid1())
 
-    ctx = {'jobguid': jobguid,
-            'inputURL':input_url,
-            'entry_point':'{}:recast'.format(analysis_name),
-            'backend':'dedicated',
-            'shipout_base':outputdir}
+    ctx = {
+        'jobguid': jobguid,
+        'inputURL':input_url,
+        'entry_point':'{}:recast'.format(analysis_name),
+        'backend':'dedicated',
+        'shipout_base':outputdir
+    }
 
     if resultlist:
-	ctx.update(resultlist = resultlist)
+        ctx.update(resultlist = resultlist)
     else:
-	ctx.update(results = '{}:resultlist'.format(analysis_name))
+	    ctx.update(results = '{}:resultlist'.format(analysis_name))
 
     result = run_analysis.apply_async((recastbackend.backendtasks.setupFromURL,
                                        recastbackend.backendtasks.generic_onsuccess,
                                        recastbackend.backendtasks.cleanup,ctx),
                                        queue = queue)
     return jobguid,result
-
 
 def submit_recast_request(request_uuid,parameter,backend):
   print 'submitting {}/{} on {}'.format(request_uuid,parameter,backend)

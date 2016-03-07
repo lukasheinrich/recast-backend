@@ -15,8 +15,8 @@ services:
     volumes:
       - recastdata:/recastdata
   plugin:
-    image: lukasheinrich/recast-cap-demo
-    command: 'celery worker -A recastbackend.fromenvapp:app -l debug -Q recast_cap_queue --logfile celery.log'
+    image: lukasheinrich/recast-helloworld
+    command: 'celery worker -A recastbackend.fromenvapp:app -l debug -Q recast_hello_world --logfile celery.log'
     environment:
       - C_FORCE_ROOT=yes
       - CELERY_REDIS_HOST=redis
