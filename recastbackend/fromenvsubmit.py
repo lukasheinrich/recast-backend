@@ -1,7 +1,9 @@
 import click
-import os
 
 from recastbackend.fromenvapp import app
+
+app.set_current()
+
 from recastbackend.submission import submit_generic_dedicated
 from recastbackend.jobstate import map_job_to_celery
 from recastbackend.listener import yield_from_celery
@@ -32,8 +34,11 @@ def capbackend(input_url,outputdir,workflow,track):
 @click.option('--track/--no-track',default = False)
 def none_submit(input_url,name,queue,outputdir,track):
     print "hello"
-
-
+    
+    print submit_generic_dedicated
+    print map_job_to_celery
+    print yield_from_celery
+    
     # if not name in analysis_names_map:
     #   click.secho('analysis not known', fg = 'red')
     #   return

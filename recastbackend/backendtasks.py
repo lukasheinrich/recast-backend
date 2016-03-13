@@ -178,8 +178,6 @@ def dummy_onsuccess(ctx):
     log.info('success!')
     
     jobguid       = ctx['jobguid']
-    backend       = ctx['backend']
-    shipout_base  = ctx['shipout_base']
     
     resultdir = isolate_results(jobguid,getresultlist(ctx))
     
