@@ -4,10 +4,10 @@ import shutil
 import importlib
 import logging
 import requests
-import recastapi.request
 import glob
 import socket
 
+import recastapi.request
 from recastbackend.messaging import setupLogging
 
 from fabric.api import env
@@ -158,22 +158,41 @@ def onsuccess(ctx):
 def generic_onsuccess(ctx):
   log.info('success!')
 
-  jobguid = ctx['jobguid']
-  backend = ctx['backend']
+  jobguid       = ctx['jobguid']
+  backend       = ctx['backend']
+  shipout_base  = ctx['shipout_base']
 
   resultdir = isolate_results(jobguid,getresultlist(ctx))
+
   log.info('uploading results')
-
-  shipout_base = ctx['shipout_base']
-
-  generic_upload_results(resultdir,os.environ['RECAST_SHIP_USER'],os.environ['RECAST_SHIP_HOST'],os.environ['RECAST_SHIP_PORT'],shipout_base,backend)
+  generic_upload_results(resultdir,
+                         os.environ['RECAST_SHIP_USER'],
+                         os.environ['RECAST_SHIP_HOST'],
+                         os.environ['RECAST_SHIP_PORT'],
+                         shipout_base,
+                         backend)
 
   log.info('done with uploading results')
 
+def dummy_onsuccess(ctx):
+    log.info('success!')
+    
+    jobguid       = ctx['jobguid']
+    backend       = ctx['backend']
+    shipout_base  = ctx['shipout_base']
+    
+    resultdir = isolate_results(jobguid,getresultlist(ctx))
+    
+    log.info('would be uploading results here..')
+    
+    for parent,dirs,files in os.walk(resultdir):
+        for f in files:
+            log.info('would be uploading this file %s','/'.join([parent,f]))
+    
+    log.info('done with uploading results')
 
 def cleanup(ctx):
   workdir = 'workdirs/{}'.format(ctx['jobguid'])
-
   log.info('cleaning up workdir: {}'.format(workdir))
   
   if os.path.isdir(workdir):
@@ -189,32 +208,37 @@ def cleanup(ctx):
 
 @shared_task
 def run_analysis(setupfunc,onsuccess,teardownfunc,ctx):
+    run_analysis_standalone(setupfunc,onsuccess,teardownfunc,ctx)
+
+def run_analysis_standalone(setupfunc,onsuccess,teardownfunc,ctx,redislogging = True):
   try:
-    jobguid = ctx['jobguid']
-
-    logger, handler = setupLogging(jobguid)
-    log.info('running analysis on worker: {}'.format(socket.gethostname()))
-
-    setupfunc(ctx)
-    try:
-      pluginmodule,entrypoint = ctx['entry_point'].split(':')
-      log.info('setting up entry point {}'.format(ctx['entry_point']))
-      m = importlib.import_module(pluginmodule)
-      entry = getattr(m,entrypoint)
-    except AttributeError:
-      log.error('could not get entrypoint: {}'.format(ctx['entry_point']))
-      raise
+      jobguid = ctx['jobguid']
       
-    log.info('and off we go!')
-    entry(ctx)
-    log.info('back from entry point run onsuccess')
-    onsuccess(ctx)
+      if redislogging:
+          logger, handler = setupLogging(jobguid)
+      log.info('running analysis on worker: {}'.format(socket.gethostname()))
+      
+      setupfunc(ctx)
+      try:
+          pluginmodule,entrypoint = ctx['entry_point'].split(':')
+          log.info('setting up entry point {}'.format(ctx['entry_point']))
+          m = importlib.import_module(pluginmodule)
+          entry = getattr(m,entrypoint)
+      except AttributeError:
+          log.error('could not get entrypoint: {}'.format(ctx['entry_point']))
+          raise
+        
+      log.info('and off we go!')
+      entry(ctx)
+      log.info('back from entry point run onsuccess')
+      onsuccess(ctx)
   except:
-    log.error('something went wrong :(!')
-    #re-raise exception
-    raise
+      log.exception('something went wrong :(!')
+      #re-raise exception
+      raise
   finally:
-    log.info('''it's a wrap! cleaning up.''')
-    teardownfunc(ctx)
-    logger.removeHandler(handler)
+      log.info('''it's a wrap! cleaning up.''')
+      teardownfunc(ctx)
+      if redislogging:
+          logger.removeHandler(handler)
     

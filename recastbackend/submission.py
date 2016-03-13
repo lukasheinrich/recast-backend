@@ -53,10 +53,16 @@ def production_celery_submit(request_uuid,parameter,backend):
   queue,ctx = get_queue_and_context(request_uuid,parameter,backend)
   
   # submit the job (with countdown to let this call finish)
-  result =  run_analysis.apply_async((recastbackend.backendtasks.setup,
-                                      recastbackend.backendtasks.onsuccess,
-                                      recastbackend.backendtasks.cleanup,ctx),
-                                      queue = queue, countdown=10)
+  result =  run_analysis.apply_async(
+                                     (
+                                       recastbackend.backendtasks.setup,
+                                       recastbackend.backendtasks.onsuccess,
+                                       recastbackend.backendtasks.cleanup,
+                                       ctx
+                                     ),
+                                     queue = queue,
+                                     countdown=10
+                                    )
 
   print "persisting job"
   persist_job(ctx,result.id)
@@ -84,10 +90,12 @@ def submit_generic_dedicated(analysis_name,queue,input_url,outputdir,resultlist 
     else:
 	    ctx.update(results = '{}:resultlist'.format(analysis_name))
 
-    result = run_analysis.apply_async((recastbackend.backendtasks.setupFromURL,
-                                       recastbackend.backendtasks.generic_onsuccess,
-                                       recastbackend.backendtasks.cleanup,ctx),
-                                       queue = queue)
+    print 'submitting ctx {}'.format(ctx)
+    result = None
+    # result = run_analysis.apply_async((recastbackend.backendtasks.setupFromURL,
+    #                                    recastbackend.backendtasks.generic_onsuccess,
+    #                                    recastbackend.backendtasks.cleanup,ctx),
+    #                                    queue = queue)
     return jobguid,result
 
 def submit_recast_request(request_uuid,parameter,backend):
