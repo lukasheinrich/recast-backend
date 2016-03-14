@@ -3,7 +3,7 @@ import uuid
 import recastbackend.backendtasks
 from recastbackend.catalogue import all_backend_catalogue
 from recastbackend.backendtasks import run_analysis
-from recastbackend.productionapp import app
+from recastbackend.fromenvapp import app
 
 from recastbackend.jobstate import persist_job
 

@@ -10,6 +10,6 @@ Currently a catalogue of existing plugins is hardcoded into recastbackend/catalo
 
 Any analysis plugin VM must have this package insstalled in addition to the plugin code. Once the environment is prepared for analysis, one can start a Celery worker process via 
 
-    celery worker -A recastbackend.productionapp:app -l info -Q <queue name>
+    celery worker -A recastbackend.fromenvapp:app -l info -Q <queue name>
   
 to start accepting RECAST analysis jobs.

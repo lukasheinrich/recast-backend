@@ -1,7 +1,7 @@
 import click
 from recastbackend.submission import submit_recast_request
 from recastbackend.listener import wait_and_echo
-from recastbackend.productionapp import app
+from recastbackend.fromenvapp import app
 
 @click.command()
 @click.argument('uuid')
