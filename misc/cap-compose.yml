@@ -1,0 +1,41 @@
+version: '2' 
+services:
+  redis:
+    image: redis
+  headnode:
+    image: lukasheinrich/recast-backend
+    # command: recast-localsub http://physics.nyu.edu/~lh1132/michal.zip EwkTwoLepton recast_cap_queue test_zara_out --track
+    command: bash
+    stdin_open: true
+    tty: true
+    environment:
+      - CELERY_REDIS_HOST=redis
+      - CELERY_REDIS_PORT=6379
+      - CELERY_REDIS_DB=0
+    volumes:
+      - recastdata:/recastdata
+  plugin:
+    image: lukasheinrich/recast-cap-demo
+    command: 'celery worker -A recastbackend.fromenvapp:app -l debug -Q recast_cap_queue --logfile celery.log'
+    environment:
+      - C_FORCE_ROOT=yes
+      - CELERY_REDIS_HOST=redis
+      - CELERY_REDIS_PORT=6379
+      - CELERY_REDIS_DB=0
+      - RECAST_SHIP_USER=root
+      - RECAST_SHIP_HOST=shiptarget
+      - RECAST_SHIP_PORT=22
+    volumes:
+      - recastdata:/recastdata
+      - ./id_rsa:/root/.ssh/id_rsa
+  shiptarget:
+    image: quay.io/macropin/sshd
+    command: bash -c 'cp /keys /root/.ssh/authorized_keys; /usr/sbin/sshd -D -f /etc/ssh/sshd_config'
+    volumes:
+      - recastdata:/recastdata
+      - ./id_rsa.pub:/keys:rw
+volumes:
+  recastdata:
+    driver: local
+  workflowdir:
+    driver: local
