@@ -33,16 +33,6 @@ def map_job_to_celery(jobguid,asyncresult_id):
   jobtocelery = jobguid_to_celery_key(jobguid)
   red.set(jobtocelery,asyncresult_id)
   
-def persist_job(ctx,result_id):
-  request_uuid,parameter,backend,jobguid = ctx['requestguid'],ctx['parameter_pt'],ctx['backend'],ctx['jobguid']
-
-  #append his job to list of jobs of the request:parameter:backend
-  register_job(request_uuid,parameter,backend,jobguid)
-
-  #map job id to celery id
-  map_job_to_celery(jobguid,result_id)
-
-
 def get_celery_id(jobguid):
   red = get_redis_from_celery(celery.current_app)
   return red.get(jobguid_to_celery_key(jobguid))
