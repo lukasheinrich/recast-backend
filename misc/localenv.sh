@@ -1,0 +1,6 @@
+export CELERY_REDIS_HOST=localhost
+export CELERY_REDIS_PORT=6379
+export CELERY_REDIS_DB=0
+export RECAST_SHIP_USER=lukas
+export RECAST_SHIP_HOST=localhost
+export RECAST_SHIP_PORT=22
