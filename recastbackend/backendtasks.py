@@ -49,7 +49,7 @@ def prepare_job_fromURL(jobguid,input_url):
     workdir = 'workdirs/{}'.format(jobguid)
     
     filepath = download_file(input_url,workdir)
-    log.info('downloaded done (at: {})'.format(filepath))
+    log.info('downloaded done (at: %s)',filepath)
     
     with zipfile.ZipFile(filepath)as f:
         f.extractall('{}/inputs'.format(workdir))
@@ -57,7 +57,7 @@ def prepare_job_fromURL(jobguid,input_url):
 def setupFromURL(ctx):
     jobguid = ctx['jobguid']
     
-    log.info('setting up for context {}'.format(ctx))
+    log.info('setting up for context %s',ctx)
     
     prepare_workdir(jobguid)
     prepare_job_fromURL(jobguid,ctx['inputURL'])
@@ -80,14 +80,15 @@ def isolate_results(jobguid,resultlist):
     for result,resultpath in ((r,os.path.abspath('{}/{}'.format(workdir,r))) for r in resultlist):
         globresult = glob.glob(resultpath)
         if not globresult:
-            log.warning('no matches for glob {}'.format(resultpath))
+            log.warning('no matches for glob %s',resultpath)
         for thing in globresult:
             if os.path.isfile(thing):
                 shutil.copyfile(thing,'{}/{}'.format(resultdir,os.path.basename(thing)))
             elif os.path.isdir(thing):
                 shutil.copytree(thing,'{}/{}'.format(resultdir,os.path.basename(thing)))
             else:
-                log.error('result {} (path: {}, glob element: {})  does not exist or is neither file nor folder!'.format(result,resultpath,thing))
+                log.error('result %s (path: %s, glob element: %s)  does not exist or is neither file nor folder!',
+                          result,resultpath,thing)
                 raise RuntimeError
     return resultdir
   
@@ -143,7 +144,7 @@ def dummy_onsuccess(ctx):
 
 def cleanup(ctx):
     workdir = 'workdirs/{}'.format(ctx['jobguid'])
-    log.info('cleaning up workdir: {}'.format(workdir))
+    log.info('cleaning up workdir: %s',workdir)
    
     if os.path.isdir(workdir):
         #shutil.rmtree(workdir)
@@ -166,16 +167,16 @@ def run_analysis_standalone(setupfunc,onsuccess,teardownfunc,ctx,redislogging = 
         
         if redislogging:
             logger, handler = setupLogging(jobguid)
-        log.info('running analysis on worker: {}'.format(socket.gethostname()))
+        log.info('running analysis on worker: %s',socket.gethostname())
         
         setupfunc(ctx)
         try:
             pluginmodule,entrypoint = ctx['entry_point'].split(':')
-            log.info('setting up entry point {}'.format(ctx['entry_point']))
+            log.info('setting up entry point %s',ctx['entry_point'])
             m = importlib.import_module(pluginmodule)
             entry = getattr(m,entrypoint)
         except AttributeError:
-            log.error('could not get entrypoint: {}'.format(ctx['entry_point']))
+            log.error('could not get entrypoint: %s',ctx['entry_point'])
             raise
           
         log.info('and off we go!')
