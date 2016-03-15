@@ -16,7 +16,10 @@ services:
       - recastdata:/recastdata
   plugin:
     image: lukasheinrich/recast-cap-demo
-    command: 'celery worker -A recastbackend.fromenvapp:app -l debug -Q recast_cap_queue --logfile celery.log'
+    command: bash -c 'cd /workdirsdata; celery worker -A recastbackend.fromenvapp:app -l debug -Q recast_cap_queue --logfile celery.log'
+    # command: bash
+    # stdin_open: true
+    # tty: true
     environment:
       - C_FORCE_ROOT=yes
       - CELERY_REDIS_HOST=redis
@@ -25,17 +28,23 @@ services:
       - RECAST_SHIP_USER=root
       - RECAST_SHIP_HOST=shiptarget
       - RECAST_SHIP_PORT=22
+      - DOCKER_HOST=$DOCKER_HOST
+      - DOCKER_TLS_VERIFY=1
+      - DOCKER_CERT_PATH=/certs
+      - RECAST_CAP_IN_DOCKER_WORKDIR_VOL=/mnt/sda1/var/lib/docker/volumes/misc_workdirsdata/_data
     volumes:
       - recastdata:/recastdata
+      - workdirsdata:/workdirsdata
       - ./id_rsa:/root/.ssh/id_rsa
+      - $DOCKER_CERT_PATH:/certs 
   shiptarget:
     image: quay.io/macropin/sshd
-    command: bash -c 'cp /keys /root/.ssh/authorized_keys; /usr/sbin/sshd -D -f /etc/ssh/sshd_config'
+    command: bash -c 'cp /keys/mykeys.pub /root/.ssh/authorized_keys; /usr/sbin/sshd -D -f /etc/ssh/sshd_config'
     volumes:
       - recastdata:/recastdata
-      - ./id_rsa.pub:/keys:rw
+      - ./id_rsa.pub:/keys/mykeys.pub:rw
 volumes:
   recastdata:
     driver: local
-  workflowdir:
+  workdirsdata:
     driver: local
