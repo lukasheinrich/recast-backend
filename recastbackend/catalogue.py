@@ -25,11 +25,11 @@ implemented_analyses = {
 }
 
 def rivet_info():
-  rivetnameToUUID = pickle.loads(pkg_resources.resource_string('recastbackend','rivetmap.pickle'))
-  return {v:{'workflow' :'}',
-             'queue'    :'rivet_queue',
-             'blueprint':'recastresultblueprints.rivet_result.blueprint:blueprint',
-             'analysis' : k} for k,v in rivetnameToUUID.iteritems()}
+    rivetnameToUUID = pickle.loads(pkg_resources.resource_string('recastbackend','rivetmap.pickle'))
+    return {v:{'workflow' :'}',
+               'queue'    :'rivet_queue',
+               'blueprint':'recastresultblueprints.rivet_result.blueprint:blueprint',
+               'analysis' : k} for k,v in rivetnameToUUID.iteritems()}
 
 rivet_analyses = rivet_info()
 
@@ -39,8 +39,8 @@ all_backend_catalogue = {
 }
 
 def getBackends(analysis_uuid):
-  backends = []
-  for k in all_backend_catalogue.keys():
-    if analysis_uuid in all_backend_catalogue[k]:
-      backends+=[k]
-  return backends
+    backends = []
+    for k in all_backend_catalogue.keys():
+        if analysis_uuid in all_backend_catalogue[k]:
+            backends+=[k]
+    return backends

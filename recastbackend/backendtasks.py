@@ -18,15 +18,15 @@ from celery import shared_task
 env.use_ssh_config = True
 
 def generic_upload_results(resultdir,user,host,port,base,backend):
-  #make sure the directory for this point is present
-
-  def fabric_command():
-    run('mkdir -p {}'.format(base))
-    run('(test -d {base}/{backend} && rm -rf {base}/{backend}) || echo "not present yet" '.format(base = base,backend = backend))
-    run('mkdir {base}/{backend}'.format(base = base, backend = backend))
-    put('{}/*'.format(resultdir),'{base}/{backend}'.format(base = base, backend = backend))
-
-  execute(fabric_command,hosts = '{user}@{host}:{port}'.format(user = user,host = host,port = port))
+    #make sure the directory for this point is present
+    
+    def fabric_command():
+        run('mkdir -p {}'.format(base))
+        run('(test -d {base}/{backend} && rm -rf {base}/{backend}) || echo "not present yet" '.format(base = base,backend = backend))
+        run('mkdir {base}/{backend}'.format(base = base, backend = backend))
+        put('{}/*'.format(resultdir),'{base}/{backend}'.format(base = base, backend = backend))
+    
+    execute(fabric_command,hosts = '{user}@{host}:{port}'.format(user = user,host = host,port = port))
 
 
 
@@ -46,27 +46,27 @@ def download_file(url,download_dir):
 
 
 def prepare_job_fromURL(jobguid,input_url):
-  workdir = 'workdirs/{}'.format(jobguid)
-
-  filepath = download_file(input_url,workdir)
-  log.info('downloaded done (at: {})'.format(filepath))
-
-  with zipfile.ZipFile(filepath)as f:
-    f.extractall('{}/inputs'.format(workdir))
+    workdir = 'workdirs/{}'.format(jobguid)
+    
+    filepath = download_file(input_url,workdir)
+    log.info('downloaded done (at: {})'.format(filepath))
+    
+    with zipfile.ZipFile(filepath)as f:
+        f.extractall('{}/inputs'.format(workdir))
 
 def setupFromURL(ctx):
-  jobguid = ctx['jobguid']
-
-  log.info('setting up for context {}'.format(ctx))
-
-  prepare_workdir(jobguid)
-  prepare_job_fromURL(jobguid,ctx['inputURL'])
+    jobguid = ctx['jobguid']
+    
+    log.info('setting up for context {}'.format(ctx))
+    
+    prepare_workdir(jobguid)
+    prepare_job_fromURL(jobguid,ctx['inputURL'])
 
 
 def prepare_workdir(jobguid):
-  workdir = 'workdirs/{}'.format(jobguid)
-  os.makedirs(workdir)
-  log.info('prepared workdir')
+    workdir = 'workdirs/{}'.format(jobguid)
+    os.makedirs(workdir)
+    log.info('prepared workdir')
 
 def isolate_results(jobguid,resultlist):
     workdir = 'workdirs/{}'.format(jobguid)
@@ -93,18 +93,18 @@ def isolate_results(jobguid,resultlist):
   
 
 def getresultlist(ctx):
-  """
-  result list can either be provided as module:attricbut nullary function
-  under the key 'results' or as an actual list of strings under key 'resultlist'  
-  """
-  if 'results' in ctx:
-      resultlistname = ctx['results']
-      modulename,attr = resultlistname.split(':')
-      module = importlib.import_module(modulename)
-      resultlister = getattr(module,attr)    
-      return resultlister()
-  if 'resultlist' in ctx:
-      return ctx['resultlist']
+    """
+    result list can either be provided as module:attricbut nullary function
+    under the key 'results' or as an actual list of strings under key 'resultlist'  
+    """
+    if 'results' in ctx:
+        resultlistname = ctx['results']
+        modulename,attr = resultlistname.split(':')
+        module = importlib.import_module(modulename)
+        resultlister = getattr(module,attr)    
+        return resultlister()
+    if 'resultlist' in ctx:
+        return ctx['resultlist']
   
 
 def generic_onsuccess(ctx):
