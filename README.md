@@ -13,3 +13,20 @@ Any analysis plugin VM must have this package insstalled in addition to the plug
     celery worker -A recastbackend.fromenvapp:app -l info -Q <queue name>
   
 to start accepting RECAST analysis jobs.
+
+
+#### Docker Compose example for CAP plugin:
+
+when connected to a docker daemon via DOCKER_HOST (like on a Mac with boot2docker)
+
+    export RECAST_CAP_IN_DOCKER_WORKDIR_VOL=$(docker volume inspect workdirsdata|grep Mountpoint|awk '{print $NF}'|sed 's|\"||g')
+    docker volume create --name workdirsdata                                                                       
+    docker-compose -f cap-compose.yml up -d && docker attach misc_headnode_1                                                     
+
+In the head node you can the issue
+
+    recast-directsub cap http://physics.nyu.edu/~lh1132/dummycomplex.zip complex_analysis/fullworkflow.yml /recastdata/outhere --track
+
+this will have the results appear in `/recastdata/outhere`:
+
+    ls -lrt /recastdata/outhere
