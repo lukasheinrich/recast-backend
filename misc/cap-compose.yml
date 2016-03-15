@@ -16,10 +16,10 @@ services:
       - recastdata:/recastdata
   plugin:
     image: lukasheinrich/recast-cap-demo
-    command: bash -c 'cd /workdirsdata; celery worker -A recastbackend.fromenvapp:app -l debug -Q recast_cap_queue --logfile celery.log'
-    # command: bash
-    # stdin_open: true
-    # tty: true
+    # command: bash -c 'ssh-keyscan -t rsa shiptarget >> ~/.ssh/known_hosts ;cd /workdirsdata; celery worker -A recastbackend.fromenvapp:app -l debug -Q recast_cap_queue --logfile celery.log'
+    command: bash
+    stdin_open: true
+    tty: true
     environment:
       - C_FORCE_ROOT=yes
       - CELERY_REDIS_HOST=redis
