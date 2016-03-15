@@ -27,7 +27,7 @@ def yield_socketmsg_until(pubsub,namespace = '/',breaker = lambda: False):
 def yield_room_msg_until(pubsub,room = None,breaker = lambda: False):
     for data,extras in yield_socketmsg_until(pubsub,namespace = '/monitor',breaker = breaker):
         if room: 
-            if not room in extras['rooms']:    
+            if room not in extras['rooms']:    
                 continue
         yield extras['rooms'],data['data'][1]
 

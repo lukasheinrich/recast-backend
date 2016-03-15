@@ -30,7 +30,7 @@ def track(celeryapp,jobguid):
         
         result = get_result_obj(jobguid)
         for msgdata,_ in yield_from_celery(app,jobguid, lambda: result.ready()):
-          click.secho('{date} :: {msg}'.format(**msgdata))
+            click.secho('{date} :: {msg}'.format(**msgdata))
     
     except KeyboardInterrupt:
         click.secho('bye bye.')
