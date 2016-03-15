@@ -1,5 +1,6 @@
 # recast-backend
 [![Build Status](https://travis-ci.org/recast-hep/recast-backend.svg?branch=master)](https://travis-ci.org/recast-hep/recast-backend)
+[![Code Health](https://landscape.io/github/recast-hep/recast-backend/master/landscape.svg?style=flat)](https://landscape.io/github/recast-hep/recast-backend/master)
 
 
 The modules provided by this package provide the glue between the [RECAST Control Center](https://github.com/recast-hep/recast-control-center-prototype) and the analysis plugins.
