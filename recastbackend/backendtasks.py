@@ -66,6 +66,12 @@ def setupFromURL(ctx):
 def prepare_workdir(jobguid):
     workdir = 'workdirs/{}'.format(jobguid)
     os.makedirs(workdir)
+
+    if 'RECAST_IN_DOCKER_WORKDIRS_VOL' in os.environ:
+        #publish absolute path of this workdir for use by plugins
+        os.environ['RECAST_IN_DOCKER_WORKDIR']='{}/{}'.format(os.environ['RECAST_IN_DOCKER_WORKDIRS_VOL'],workdir)
+        log.info('plugin is running in Docker. set packtivity workdir as %s',os.environ['RECAST_IN_DOCKER_WORKDIR'])
+
     log.info('prepared workdir')
 
 def isolate_results(jobguid,resultlist):
@@ -168,7 +174,7 @@ def run_analysis_standalone(setupfunc,onsuccess,teardownfunc,ctx,redislogging = 
         if redislogging:
             logger, handler = setupLogging(jobguid)
         log.info('running analysis on worker: %s',socket.gethostname())
-        
+                
         setupfunc(ctx)
         try:
             pluginmodule,entrypoint = ctx['entry_point'].split(':')

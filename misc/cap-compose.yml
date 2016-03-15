@@ -32,7 +32,7 @@ services:
       - DOCKER_HOST=$DOCKER_HOST
       - DOCKER_TLS_VERIFY=1
       - DOCKER_CERT_PATH=/certs
-      - RECAST_CAP_IN_DOCKER_WORKDIR_VOL=$RECAST_CAP_IN_DOCKER_WORKDIR_VOL
+      - RECAST_IN_DOCKER_WORKDIRS_VOL=$RECAST_IN_DOCKER_WORKDIRS_VOL
     volumes:
       - recastdata:/recastdata
       - workdirsdata:/workdirsdata
