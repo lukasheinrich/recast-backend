@@ -20,8 +20,8 @@ to start accepting RECAST analysis jobs.
 
 when connected to a docker daemon via DOCKER_HOST (like on a Mac with boot2docker)
 
-    export RECAST_CAP_IN_DOCKER_WORKDIR_VOL=$(docker volume inspect workdirsdata|grep Mountpoint|awk '{print $NF}'|sed 's|\"||g')
     docker volume create --name workdirsdata                                                                       
+    export RECAST_IN_DOCKER_WORKDIRS_VOL=$(docker volume inspect workdirsdata|grep Mountpoint|awk '{print $NF}'|sed 's|\"||g')
     docker-compose -f cap-compose.yml up -d && docker attach misc_headnode_1                                                     
 
 In the head node you can the issue
