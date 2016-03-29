@@ -1,0 +1,3 @@
+export CELERY_REDIS_HOST=redis
+export CELERY_REDIS_PORT=6379
+export CELERY_REDIS_DB=0
