@@ -15,9 +15,10 @@ services:
       - CELERY_REDIS_DB=0
     volumes:
       - recastdata:/recastdata
+      - quarantine:/quarantinedata
   plugin:
     image: lukasheinrich/recast-cap-demo
-    command: bash -c 'ssh-keyscan -t rsa shiptarget >> ~/.ssh/known_hosts ;cd /workdirsdata; celery worker -A recastbackend.fromenvapp:app -l debug -Q recast_cap_queue --logfile celery.log'
+    command: bash -c 'ssh-keyscan -t rsa shiptarget >> ~/.ssh/known_hosts ;cd /workdirsdata; celery worker -A recastbackend.fromenvapp:app -l debug -Q recast_cap_queue'
     # command: bash
     # stdin_open: true
     # tty: true
@@ -33,14 +34,16 @@ services:
       - DOCKER_TLS_VERIFY=1
       - DOCKER_CERT_PATH=/certs
       - RECAST_IN_DOCKER_WORKDIRS_VOL=$RECAST_IN_DOCKER_WORKDIRS_VOL
+      - RECAST_QUARANTINE_DIR=/quarantinedata
     volumes:
       - recastdata:/recastdata
       - workdirsdata:/workdirsdata
+      - quarantine:/quarantinedata
       - ./dummyssh/id_rsa:/root/.ssh/id_rsa
-      - $DOCKER_CERT_PATH:/certs 
+      - $DOCKER_CERT_PATH:/certs
   shiptarget:
     image: quay.io/macropin/sshd
-    command: bash -c 'cat pubkey > /root/.ssh/authorized_keys; /usr/sbin/sshd -D -f /etc/ssh/sshd_config'
+    command: bash -c 'cat /pubkey > /root/.ssh/authorized_keys; /usr/sbin/sshd -D -f /etc/ssh/sshd_config'
     volumes:
       - recastdata:/recastdata
       - ./dummyssh/id_rsa.pub:/pubkey:rw
@@ -48,4 +51,6 @@ volumes:
   recastdata:
     driver: local
   workdirsdata:
+    external: true
+  quarantine:
     external: true

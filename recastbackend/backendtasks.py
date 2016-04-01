@@ -109,11 +109,12 @@ def getresultlist(ctx):
   
 
 def generic_onsuccess(ctx):
-    log.info('success!')
     
     jobguid       = ctx['jobguid']
     backend       = ctx['backend']
     shipout_base  = ctx['shipout_base']
+
+    log.info('success for job %s, gathering results... ',jobguid)
     
     resultdir = isolate_results(jobguid,getresultlist(ctx))
     
@@ -142,20 +143,44 @@ def dummy_onsuccess(ctx):
     
     log.info('done with uploading results')
 
+def delete_all_but_log(directory, cutoff_size_MB = 50):
+    """
+    deletes all files in directory except *.log and *.txt which are
+    assumed to be logfiles, except when they are too large, 
+    in which case they are shredded, too
+    """
+    bytes_per_megabyte = 1048576.0 #(2**20)
+
+    for parent,directories,files in os.walk(directory):
+        for fl in files:
+            fullpath = '/'.join([parent,fl])
+            islog = (fl.endswith('.log') or fl.endswith('.txt'))
+            size_MB = os.stat(fullpath).st_size/bytes_per_megabyte 
+            if islog:
+                if size_MB < cutoff_size_MB:
+                    continue
+                log.warning('size of log-like file %s is too large (%s MB), will be deleted',fullpath,size_MB)
+            os.remove(fullpath)
+    
+
 def cleanup(ctx):
     workdir = 'workdirs/{}'.format(ctx['jobguid'])
     log.info('cleaning up workdir: %s',workdir)
-   
-    if os.path.isdir(workdir):
-        #shutil.rmtree(workdir)
-        rescuedir = '/tmp/recast_quarantine/{}'.format(ctx['jobguid'])
-        shutil.move(workdir,rescuedir)
-        assert not os.path.isdir(workdir)
-        for p,d,f in os.walk(rescuedir):
-            for fl in f:
-                if not (fl.endswith('.log') or fl.endswith('.txt')):
-                    os.remove('/'.join([p,fl]))
-
+    
+    quarantine_base = os.environ.get('RECAST_QUARANTINE_DIR','/tmp/recast_quarantine')
+    rescuedir = '{}/{}'.format(quarantine_base,ctx['jobguid'])
+    log.info('log files will be in %s',rescuedir)
+    try:
+        if os.path.isdir(workdir):
+            delete_all_but_log(workdir)
+            shutil.move(workdir,rescuedir)
+    except:
+        #this is again pretty harsh, but we really want to make sure the workdir is gone
+        if os.path.isdir(workdir):
+            shutil.rmtree(workdir)
+        log.exception('Error in cleanup function for jobid %s, the directory is gone.', ctx['jobguid'])
+        raise RuntimeError('Error in cleanup, ')
+    assert not os.path.isdir(workdir)
 
 @shared_task
 def run_analysis(setupfunc,onsuccess,teardownfunc,ctx):
@@ -179,7 +204,7 @@ def run_analysis_standalone(setupfunc,onsuccess,teardownfunc,ctx,redislogging = 
             log.error('could not get entrypoint: %s',ctx['entry_point'])
             raise
           
-        log.info('and off we go!')
+        log.info('and off we go with job %s!',jobguid)
         entry(ctx)
         log.info('back from entry point run onsuccess')
         onsuccess(ctx)
@@ -188,7 +213,7 @@ def run_analysis_standalone(setupfunc,onsuccess,teardownfunc,ctx,redislogging = 
         #re-raise exception
         raise
     finally:
-        log.info('''it's a wrap! cleaning up.''')
+        log.info('''it's a wrap for job %s! cleaning up.''',jobguid)
         teardownfunc(ctx)
         if redislogging:
             logger.removeHandler(handler)
