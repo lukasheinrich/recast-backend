@@ -11,7 +11,7 @@ def common_context(input_url,outputdir,backend):
     return ctx
 
 capresults = {
-    'ewk_analyses/ewkdilepton_analysis/example_workflow.yml':['workflow.gif','results.yaml','out.yield','*.log','*.cid','out.root','fit.tgz'],
+    'ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml':['workflow.gif','results.yaml','out.yield','*.log','*.cid','out.root','fit.tgz'],
     'pheno_workflows/madgraph_delphes.yml':['workflow.gif','output.root','output.root'],
     'complex_analysis/fullworkflow.yml':['plots','fit.workspace.root']
 }
