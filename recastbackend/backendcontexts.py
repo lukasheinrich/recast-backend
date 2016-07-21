@@ -10,41 +10,25 @@ def common_context(input_url,outputdir,backend):
     }
     return ctx
 
+def generic_outputs():
+    return ['_adage','_yadage']
+
 capresults = {
-    'ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml':['_adage/workflow.gif','results.yaml','out.yield','*.log','*.cid','out.root','fit.tgz'],
-    'pheno_workflows/madgraph_delphes.yml':['_adage/workflow.gif','output.root','output.root'],
-    'complex_analysis/fullworkflow.yml':['plots','fit.workspace.root']
+    'from-github/pseudocap:ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml':
+        generic_outputs() + ['histfitprepare/out.yield','histfitprepare/out.root','fit/fit.tgz','postproc/results.yml'],
+    'from-github/phenochain:madgraph_delphes.yml':
+        generic_outputs() + ['pythia/output.hepmc','delphes/output.lhco','delphes/output.root'],
+    'from-github/higgmcproduction:rootflow-combined.yml':
+        generic_outputs() + ['rootmerge/anamerged.root'],
 }
 
-def cap_context(common_context,workflow):
+def cap_context(common_context,workflow,toplevel = 'from-github/pseudocap'):
+    wflowkey = '{}:{}'.format(toplevel,workflow)
     ctx = common_context
     ctx.update(**{
         'entry_point':'recastcap.backendtasks:recast',
+        'toplevel':toplevel,
         'workflow':workflow,
-        'resultlist':capresults[workflow]
+        'resultlist':capresults[wflowkey]
     })
     return ctx
-    
-def rivet_context(common_context,analysis):
-    ctx = common_context
-    ctx.update(**{
-        'entry_point':'recastrivet.backendtasks:recast',
-        'results':'recastrivet.backendtasks:results',
-        'analysis':analysis
-    })
-    return ctx
-
-
-dedicated_plugins = {
-  '858fb12c-b62f-9954-1997-a6ff8c27be0e':'recastdmhiggs.backendtasks',
-  '3ad4efdb-0170-fb94-75a5-8a1279386745':'recasthype.backendtasks',
-  '19c471ff-2514-eb44-0d82-59563cc38dab':'recastsusyhiggs.backendtasks',
-  '09986001-6348-2fa4-59f8-f1d1b4a65776':'recastfullchain.backendtasks',
-}
-    
-def dedicated_context(common_context,recast_analysis_id):
-    raise NotImplementedError('need to implement dedicated context')
-
-    
-
-    
