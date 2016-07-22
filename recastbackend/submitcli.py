@@ -19,17 +19,18 @@ def submit():
 @click.argument('input_url')
 @click.argument('workflow')
 @click.argument('outputdir')
+@click.option('-t','--toplevel', default = 'from-github/pseudocap')
 @click.option('-q','--queue', default = 'recast_cap_queue')
 @click.option('--track/--no-track',default = False)
-def cap(input_url,workflow,outputdir,track,queue):
+def cap(input_url,workflow,outputdir,track,queue,toplevel):
     ctx = backendcontexts.common_context(input_url,os.path.abspath(outputdir),backend = 'capbackend')
-    backendcontexts.cap_context(ctx,workflow)
-    
+    backendcontexts.cap_context(ctx,workflow,toplevel)
+
     result = submit_celery(ctx,queue)
     click.secho('submitted job with guid: {}'.format(ctx['jobguid']),fg = 'green')
     if track:
         track_result(result,ctx['jobguid'])
-    
+
 
 
 @click.argument('input_url')

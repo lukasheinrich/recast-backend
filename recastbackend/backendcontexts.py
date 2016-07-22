@@ -18,7 +18,7 @@ capresults = {
         generic_outputs() + ['histfitprepare/out.yield','histfitprepare/out.root','fit/fit.tgz','postproc/results.yml'],
     'from-github/phenochain:madgraph_delphes.yml':
         generic_outputs() + ['pythia/output.hepmc','delphes/output.lhco','delphes/output.root'],
-    'from-github/higgmcproduction:rootflow-combined.yml':
+    'from-github/higgsmcproduction:rootflow-combined.yml':
         generic_outputs() + ['rootmerge/anamerged.root'],
 }
 
