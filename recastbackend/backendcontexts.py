@@ -19,7 +19,7 @@ capresults = {
     'from-github/phenochain:madgraph_delphes.yml':
         generic_outputs() + ['pythia/output.hepmc','delphes/output.lhco','delphes/output.root'],
     'from-github/higgsmcproduction:rootflow-combined.yml':
-        generic_outputs() + ['rootmerge/anamerged.root'],
+        generic_outputs() + ['rootmerge/anamerged.root','grid/grid.tar.gz'],
 }
 
 def cap_context(common_context,workflow,toplevel = 'from-github/pseudocap'):
