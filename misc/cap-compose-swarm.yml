@@ -1,7 +1,19 @@
-version: '2' 
+version: '2'
 services:
   redis:
     image: redis
+  webserver:
+    command: recast-control-center server
+    image: recastcc
+    environment:
+      - CELERY_REDIS_HOST=redis
+      - CELERY_REDIS_PORT=6379
+      - CELERY_REDIS_DB=0
+    volumes:
+      - recastdata:/recastdata
+      - quarantine:/quarantinedata
+    ports:
+      - 80:8000
   headnode:
     image: lukasheinrich/recast-backend
     #try this in interactive session:

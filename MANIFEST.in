@@ -1,1 +1,2 @@
 include recastbackend/rivetmap.pickle
+include resources/backendconfig.yml

@@ -1,6 +1,11 @@
 import os
 
-def resultfilepath(requestId,parameter_pt,backend,path):
-    content_path = os.environ['RECAST_CONTENT_PATH_TEMPL'].format(requestId,parameter_pt)
-    content_path += '/'+backend
-    return '{}/{}'.format(content_path,path)
+def resultfilepath(basicreqid,backend,path):
+    base_path = basicreqpath(basicreqid).rstrip('/')
+    base_path += '/{}'.format(backend)
+    return '{}/{}'.format(base_path,path)
+
+def basicreqpath(basicreqid):
+    path = os.environ['RECAST_RESULT_BASE'].rstrip('/')
+    path += '/results/{}'.format(basicreqid)
+    return path

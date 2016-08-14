@@ -1,5 +1,6 @@
 import logging
 import recastbackend.backendtasks
+import backendcontexts
 import messaging
 from fromenvapp import app
 from jobstate import map_job_to_celery
@@ -19,7 +20,14 @@ def submit_celery(ctx,queue):
     messaging.socketlog(ctx['jobguid'],'registered. processed by celery id: {}'.format(result.id))
     map_job_to_celery(ctx['jobguid'],result.id)
     return result
-    
-def submit_recast_request(request_uuid,parameter,backend):
-    raise NotImplementedError('we are changing things right now. The implementation will be back soon')
 
+def submit_recast_request(basicreqid,analysisid,backend):
+    log.info('submitting recast request for basic request #%s via analysis: %s backend %s ',basicreqid,analysisid,backend)
+    ctx = None
+    if backend == 'capbackend':
+        ctx = backendcontexts.cap_context_for_recast(basicreqid,analysisid)
+        log.info('submitting context %s',ctx)
+        result = submit_celery(ctx,'recast_cap_queue')
+        return ctx['jobguid'],result.id
+    else:
+        raise RuntimeError('do not know how to construct context for backend: %s',backend)
