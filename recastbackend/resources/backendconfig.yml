@@ -1,0 +1,27 @@
+capbackend_config:
+  results:
+      - workflow: 'from-github/pseudocap:ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml'
+        results:
+          - 'histfitprepare/out.yield'
+          - 'histfitprepare/out.root'
+          - 'fit/fit.tgz'
+          - 'postproc/results.yml'
+      - workflow: 'from-github/phenochain:madgraph_delphes.yml'
+        results:
+          - 'pythia/output.hepmc'
+          - 'delphes/output.lhco'
+          - 'delphes/output.root'
+      - workflow: 'from-github/higgsmcproduction:rootflow-combined.yml'
+        results:
+          - 'rootmerge/anamerged.root'
+          - 'grid/grid.tar.gz'
+      - workflow: 'from-github/phenochain:madgraph_delphes_athena.yml'
+        results:
+          - 'pythia/output.hepmc'
+          - 'delphes/output.lhco'
+          - 'delphes/output.root'
+          - 'athena/plot.png'
+  recast_workflow_config:
+    - analysis_id: 6
+      toplevel: from-github/phenochain
+      workflow: madgraph_delphes_athena.yml
