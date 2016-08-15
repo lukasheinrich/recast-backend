@@ -1,0 +1,69 @@
+version: '2'
+services:
+  redis:
+    image: redis
+  webserver:
+    command: recast-control-center server
+    #stdin_open: true
+    #tty: true
+    image: recastcc
+    environment:
+      - CELERY_REDIS_HOST=redis
+      - CELERY_REDIS_PORT=6379
+      - CELERY_REDIS_DB=0
+      - RECAST_RESULT_BASE=/recastdata
+    volumes:
+      - recastdata:/recastdata
+      - quarantine:/quarantinedata
+    ports:
+      - 80:8000
+  headnode:
+    image: lukasheinrich/recast-backend
+    #try this in interactive session:
+    #recast-directsub cap http://physics.nyu.edu/~lh1132/dummycomplex.zip complex_analysis/fullworkflow.yml /recastdata/outhere --track
+    command: bash
+    stdin_open: true
+    tty: true
+    environment:
+      - CELERY_REDIS_HOST=redis
+      - CELERY_REDIS_PORT=6379
+      - CELERY_REDIS_DB=0
+    volumes:
+      - recastdata:/recastdata
+      - quarantine:/quarantinedata
+  plugin:
+    image: lukasheinrich/recast-cap-demo
+    command: bash -c 'mkdir -p /root/.ssh; cat /secrets/ssh/id_rsa > /root/.ssh/id_rsa; chmod 400 /root/.ssh/id_rsa; ssh-keyscan -t rsa shiptarget >> ~/.ssh/known_hosts;cd /workdirsdata; celery worker -A recastbackend.fromenvapp:app -l debug -Q recast_cap_queue'
+    environment:
+      - C_FORCE_ROOT=yes
+      - CELERY_REDIS_HOST=redis
+      - CELERY_REDIS_PORT=6379
+      - CELERY_REDIS_DB=0
+      - RECAST_SHIP_USER=root
+      - RECAST_SHIP_HOST=shiptarget
+      - RECAST_SHIP_PORT=22
+      - RECAST_IN_DOCKER_WORKDIRS_VOL=$RECAST_IN_DOCKER_WORKDIRS_VOL
+      - RECAST_QUARANTINE_DIR=/quarantinedata
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - recastdata:/recastdata
+      - workdirsdata:/workdirsdata
+      - quarantine:/quarantinedata
+      - secrets:/secrets
+  shiptarget:
+    image: quay.io/macropin/sshd
+    command: bash -c 'cat /secrets/ssh/id_rsa.pub > /root/.ssh/authorized_keys; /usr/sbin/sshd -D -f /etc/ssh/sshd_config'
+    ports:
+      - "2022:22"
+    volumes:
+      - recastdata:/recastdata
+      - secrets:/secrets
+volumes:
+  recastdata:
+    driver: local
+  workdirsdata:
+    external: true
+  quarantine:
+    external: true
+  secrets:
+    external: true
