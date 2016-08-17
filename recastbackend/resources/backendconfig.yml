@@ -5,7 +5,7 @@ capbackend_config:
           - 'histfitprepare/out.yield'
           - 'histfitprepare/out.root'
           - 'fit/fit.tgz'
-          - 'postproc/results.yml'
+          - 'postproc/results.yaml'
       - workflow: 'from-github/phenochain:madgraph_delphes.yml'
         results:
           - 'pythia/output.hepmc'
