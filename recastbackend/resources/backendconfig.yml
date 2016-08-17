@@ -25,3 +25,6 @@ capbackend_config:
     - analysis_id: 1
       toplevel: from-github/phenochain
       workflow: madgraph_delphes_athena.yml
+    - analysis_id: 3
+      toplevel: from-github/pseudocap
+      workflow: ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml
