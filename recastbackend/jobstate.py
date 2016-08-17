@@ -1,11 +1,9 @@
 import celery
 import celery.result
 import redis
-
-import recastapi.request
-import recastbackend.catalogue
 import logging
 import os
+
 log = logging.getLogger(__name__)
 
 def get_redis():

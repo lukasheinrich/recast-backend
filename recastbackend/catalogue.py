@@ -1,5 +1,3 @@
-import pickle
-import pkg_resources
 
 backends = [
     {
