@@ -22,6 +22,6 @@ capbackend_config:
           - 'delphes/output.root'
           - 'athena/plot.png'
   recast_workflow_config:
-    - analysis_id: 6
+    - analysis_id: 1
       toplevel: from-github/phenochain
       workflow: madgraph_delphes_athena.yml

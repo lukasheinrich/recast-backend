@@ -3,7 +3,7 @@ import recastbackend.backendtasks
 import backendcontexts
 import messaging
 from fromenvapp import app
-from jobstate import map_job_to_celery
+from jobstate import map_job_to_celery,register_job
 
 logging.basicConfig(level = logging.INFO)
 log = logging.getLogger(__name__)
@@ -28,6 +28,7 @@ def submit_recast_request(basicreqid,analysisid,backend):
         ctx = backendcontexts.cap_context_for_recast(basicreqid,analysisid)
         log.info('submitting context %s',ctx)
         result = submit_celery(ctx,'recast_cap_queue')
+        register_job(basicreqid,backend,ctx['jobguid'])
         return ctx['jobguid'],result.id
     else:
         raise RuntimeError('do not know how to construct context for backend: %s',backend)

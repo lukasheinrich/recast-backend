@@ -4,59 +4,66 @@ import redis
 
 import recastapi.request
 import recastbackend.catalogue
+import logging
+import os
+log = logging.getLogger(__name__)
 
+def get_redis():
+    log.info('getting celery from %s',os.environ['RECAST_CELERY_REDIS_HOST'])
+    return redis.StrictRedis(host = os.environ['RECAST_CELERY_REDIS_HOST'],
+                               db = os.environ['RECAST_CELERY_REDIS_DB'],
+                             port = os.environ['RECAST_CELERY_REDIS_PORT'])
 
-def get_redis_from_celery(app):
-    return redis.StrictRedis(host = app.conf['CELERY_REDIS_HOST'],
-                               db = app.conf['CELERY_REDIS_DB'], 
-                             port = app.conf['CELERY_REDIS_PORT'])
-
-def joblist_key(request_uuid,parameter_pt,backend):
-    return 'recast:{}:{}:{}:jobs'.format(request_uuid,parameter_pt,backend)
+def joblist_key(basicreqid,backend):
+    return 'recast:{}:{}:jobs'.format(basicreqid,backend)
 
 def jobguid_to_celery_key(jobguid):
     return 'recast:{}:celery'.format(jobguid)
 
+def celery_to_jobguid(celeryid):
+    return 'recast:{}:jobguid'.format(celeryid)
+
 def jobguid_message_key(jobguid):
     return 'recast:{}:msgs'.format(jobguid)
 
-def register_job(request_uuid,parameter_pt,backend,jobguid):
+def register_job(basicreqid,backend,jobguid):
     #append his job to list of jobs of the request:parameter:backend
-    red = get_redis_from_celery(celery.current_app)
-    joblist = joblist_key(request_uuid,parameter_pt,backend)
-    red.rpush(joblist,jobguid) 
-  
+    red = get_redis()
+    joblist = joblist_key(basicreqid,backend)
+    log.info('taking note of a processing for basic request %s with backend %s. jobguid: %s store under: %s',basicreqid,backend,jobguid,joblist)
+    red.rpush(joblist,jobguid)
+
 def map_job_to_celery(jobguid,asyncresult_id):
     #map job id to celery id
-    red = get_redis_from_celery(celery.current_app)
-    
+    red = get_redis()
+
     jobtocelery = jobguid_to_celery_key(jobguid)
     red.set(jobtocelery,asyncresult_id)
-  
+
+    celerytojob = celery_to_jobguid(asyncresult_id)
+    red.set(celerytojob,jobguid)
+
 def get_celery_id(jobguid):
-    red = get_redis_from_celery(celery.current_app)
+    red = get_redis()
     return red.get(jobguid_to_celery_key(jobguid))
 
+def get_jobguid_id(celeryid):
+    red = get_redis()
+    return red.get(celery_to_jobguid(celeryid))
+
 def get_result_obj(jobguid):
-    celery_id = get_celery_id(jobguid) 
+    celery_id = get_celery_id(jobguid)
     result = celery.result.AsyncResult(celery_id)
     return result
 
 def get_celery_status(celery_id):
     return celery.result.AsyncResult(celery_id).state
 
-
-def get_processings(request_uuid,parameter_pt,backend):
-    red = get_redis_from_celery(celery.current_app)
-    jobs = red.lrange(joblist_key(request_uuid,parameter_pt,backend),0,-1)
+def get_processings(basicreqid,backend):
+    red = get_redis()
+    jobs = red.lrange(joblist_key(basicreqid,backend),0,-1)
     return [{'job':job,'backend':backend,'celery':get_celery_status(get_celery_id(job))} for job in jobs]
-  
-def get_flattened_jobs(app,request_uuid,parameter_pt):
+
+def get_flattened_jobs(app,basicreq,backends):
     app.set_current()
-    request_info = recastapi.request.request(request_uuid)
-    analysis_uuid = request_info['analysis-uuid']
-    backends = recastbackend.catalogue.getBackends(analysis_uuid)
-    nested =  [get_processings(request_uuid,parameter_pt,backend) for backend in backends]
-    
-    #flatten
-    return [x for sublist in nested for x in sublist]
+    return [x for this_backend_proc in [get_processings(basicreq,b) for b in backends] for x in this_backend_proc]
