@@ -32,11 +32,11 @@ def cap_context(common_context,workflow,toplevel = 'from-github/pseudocap'):
     })
     return ctx
 
-import recastapi.request.get
+import recastapi.request.read
 
 
 def cap_context_for_recast(basicreqid,analysisid):
-    fileurl = recastapi.request.get.download_file(basicreqid,dry_run=True)['file_link']
+    fileurl = recastapi.request.read.request_archive_for_request(basicreqid,dry_run = True)
     outputdir = recastbackend.resultaccess.basicreqpath(basicreqid)
     ctx = common_context(fileurl,outputdir,'capbackend')
     wflowconfig = cap_workflow_config[analysisid]
