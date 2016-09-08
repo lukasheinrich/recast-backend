@@ -7,7 +7,8 @@ capbackend_config:
           - 'fit/fit.tgz'
           - 'postproc/results.yaml'
         recastresult:
-          adapter: recastbackend.recastadapters:null_result
+          adapter: recastbackend.recastadapters:pMSSMFormat_BestSR
+          yamlfilepath: results.yaml
       - workflow: 'from-github/phenochain:madgraph_delphes.yml'
         results:
           - 'pythia/output.hepmc'

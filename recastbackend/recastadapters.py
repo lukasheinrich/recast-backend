@@ -20,7 +20,7 @@ def standard_result(resultdir,**kwargs):
 
 def pMSSMFormat_BestSR(resultdir,**kwargs):
     result = null_result(resultdir)
-    yamldata = yaml.load(kwargs['yamlfilepath'])
+    yamldata = yaml.load(open('{}/{}'.format(resultdir,kwargs['yamlfilepath'])))
     best_obs, best_exp = None, None
     for SR,SRData in yamldata.iteritems():
         print SR,SRData
