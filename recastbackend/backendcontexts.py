@@ -1,6 +1,7 @@
 import uuid
-import pkg_resources
 import recastbackend.resultaccess
+import recastapi.request.read
+from recastbackend.recastconfig import cap_result_config, cap_workflow_config
 
 def common_context(input_url,outputdir,backend):
     jobguid = str(uuid.uuid1())
@@ -15,12 +16,6 @@ def common_context(input_url,outputdir,backend):
 def generic_yadage_outputs():
     return ['_adage','_yadage']
 
-
-import yaml
-configdata = yaml.load(open(pkg_resources.resource_filename('recastbackend','resources/backendconfig.yml')))
-cap_result_config   = {x['workflow']:x['results'] for x in configdata['capbackend_config']['results']}
-cap_workflow_config = {x['analysis_id']:x for x in configdata['capbackend_config']['recast_workflow_config']}
-
 def cap_context(common_context,workflow,toplevel = 'from-github/pseudocap'):
     wflowkey = '{}:{}'.format(toplevel,workflow)
     ctx = common_context
@@ -31,9 +26,6 @@ def cap_context(common_context,workflow,toplevel = 'from-github/pseudocap'):
         'resultlist':cap_result_config[wflowkey]+generic_yadage_outputs()
     })
     return ctx
-
-import recastapi.request.read
-
 
 def cap_context_for_recast(basicreqid,analysisid):
     fileurl = recastapi.request.read.request_archive_for_request(basicreqid,dry_run = True)

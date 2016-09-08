@@ -9,3 +9,7 @@ def basicreqpath(basicreqid):
     path = os.environ['RECAST_RESULT_BASE'].rstrip('/')
     path += '/results/{}'.format(basicreqid)
     return path
+
+def basicreq_backendpath(basicreqid,backend):
+    brpath = basicreqpath(basicreqid)
+    return '{}/{}'.format(brpath.rstrip('/'),backend)
