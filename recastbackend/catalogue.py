@@ -1,11 +1,11 @@
+import yaml
+import pkg_resources
+backendconfig = yaml.load(pkg_resources.resource_stream('recastbackend','resources/backendconfig.yml'))
 
 backends = [
     {
         'name':'capbackend',
-        'analyses':[
-            {'analysis_id':1},
-            {'analysis_id':3}
-        ]
+        'analyses':backendconfig['capbackend_config']['recast_workflow_config']
     }
 ]
 

@@ -36,6 +36,11 @@ capbackend_config:
         recastresult:
           adapter: recastbackend.recastadapters:standard_result
           jsonfilepath: 'recast.json'
+      - workflow: from-github/phenochain/checkmate_workflow:workflow.yml
+        results:
+          - 'format_results/limits.json'
+        recastresult:
+          adapter: recastbackend.recastadapters:null_result
   recast_workflow_config:
     - analysis_id: 1
       toplevel: from-github/trivial_recast
@@ -43,3 +48,8 @@ capbackend_config:
     - analysis_id: 3
       toplevel: from-github/pseudocap
       workflow: ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml
+    - analysis_id: 2
+      toplevel: from-github/phenochain/checkmate_workflow
+      workflow: workflow.yml
+      preset_pars:
+        analysis: atlas_conf_2013_047
