@@ -13,4 +13,6 @@ BROKER_URL = 'redis://{}'.format(CELERY_REDIS_HOST)
 # that one task can be fetched while another is still running on the worker this window
 # must be larger then longest task duration. kind of annoying but that's what you get
 # to have some sensible behavior in case of a failing worker. We'll set this to 24h
+# more info: http://docs.celeryproject.org/en/latest/getting-started/brokers/redis.html
+# this was a problem initially when we thought long EWK tasks being re-executed multiple times...
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout':os.environ.get('RECAST_CELERY_VISIBILITY_TIMEOUT',86400)}
