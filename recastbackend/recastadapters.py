@@ -14,6 +14,8 @@ def null_result(resultdir,**kwargs):
 def standard_result(resultdir,**kwargs):
     result = null_result(resultdir)
     data = json.load(open('{}/{}'.format(resultdir,kwargs['jsonfilepath'])))
+    if 'force_float' in kwargs:
+        data = {k:float(v) if v is not None else v for k,v in data.iteritems()}
     result.update(**data)
     return result
 

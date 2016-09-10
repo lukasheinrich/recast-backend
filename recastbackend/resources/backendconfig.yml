@@ -42,6 +42,7 @@ capbackend_config:
         recastresult:
           adapter: recastbackend.recastadapters:standard_result
           jsonfilepath: 'limits.json'
+          force_float: true
   recast_workflow_config:
     - analysis_id: 1
       toplevel: from-github/trivial_recast
