@@ -14,6 +14,15 @@ plugin_configs:
             adapter: recastbackend.recastadapters:standard_result
             jsonfilepath: 'limits.json'
             force_float: true
+        - workflow: 'from-github/pseudocap:ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml'
+          results:
+            - 'histfitprepare/out.yield'
+            - 'histfitprepare/out.root'
+            - 'fit/fit.tgz'
+            - 'postproc/results.yaml'
+          recastresult:
+            adapter: recastbackend.recastadapters:pMSSMFormat_BestSR
+            yamlfilepath: results.yaml
 recast_wflowconfigs:
   - scanid: 1
     configname: 'atlas_ewksusy_2l'
