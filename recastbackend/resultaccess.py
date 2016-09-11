@@ -1,8 +1,8 @@
 import os
 
-def resultfilepath(basicreqid,backend,path):
+def resultfilepath(basicreqid,wflowconfig,path):
     base_path = basicreqpath(basicreqid).rstrip('/')
-    base_path += '/{}'.format(backend)
+    base_path += '/{}'.format(wflowconfig)
     return '{}/{}'.format(base_path,path)
 
 def basicreqpath(basicreqid):
@@ -10,6 +10,6 @@ def basicreqpath(basicreqid):
     path += '/results/{}'.format(basicreqid)
     return path
 
-def basicreq_backendpath(basicreqid,backend):
+def basicreq_wflowconfigpath(basicreqid,wflowconfig):
     brpath = basicreqpath(basicreqid)
-    return '{}/{}'.format(brpath.rstrip('/'),backend)
+    return '{}/{}'.format(brpath.rstrip('/'),wflowconfig)

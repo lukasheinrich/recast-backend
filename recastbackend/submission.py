@@ -1,6 +1,7 @@
 import logging
 import recastbackend.backendtasks
 import backendcontexts
+from catalogue import recastcatalogue
 import messaging
 from fromenvapp import app
 from jobstate import map_job_to_celery,register_job
@@ -21,14 +22,19 @@ def submit_celery(ctx,queue):
     map_job_to_celery(ctx['jobguid'],result.id)
     return result
 
-def submit_recast_request(basicreqid,analysisid,backend):
-    log.info('submitting recast request for basic request #%s via analysis: %s backend %s ',basicreqid,analysisid,backend)
+def submit_recast_request(basicreqid,scanreqid,wflowconfigname):
+    log.info('submitting recast request for basic request #%s part of scanreqid: %s wflowconfig %s ',basicreqid,scanreqid,wflowconfigname)
     ctx = None
-    if backend == 'capbackend':
-        ctx = backendcontexts.cap_context_for_recast(basicreqid,analysisid)
+
+    allconfigs = recastcatalogue()
+    thisconfig = allconfigs[int(scanreqid)][wflowconfigname]
+    print 'doing nothing flow now....',thisconfig
+    if thisconfig['wflowplugin'] == 'yadageworkflow':
+        print 'ok we can run this via the yadage workers... '
+        ctx = backendcontexts.yadage_context_for_recast(basicreqid,scanreqid,wflowconfigname,thisconfig)
         log.info('submitting context %s',ctx)
         result = submit_celery(ctx,'recast_cap_queue')
-        register_job(basicreqid,backend,ctx['jobguid'])
+        register_job(basicreqid,wflowconfigname,ctx['jobguid'])
         return ctx['jobguid'],result.id
     else:
         raise RuntimeError('do not know how to construct context for backend: %s',backend)

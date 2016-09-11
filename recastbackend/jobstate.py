@@ -12,8 +12,8 @@ def get_redis():
                                db = os.environ['RECAST_CELERY_REDIS_DB'],
                              port = os.environ['RECAST_CELERY_REDIS_PORT'])
 
-def joblist_key(basicreqid,backend):
-    return 'recast:{}:{}:jobs'.format(basicreqid,backend)
+def joblist_key(basicreqid,wflowconfig):
+    return 'recast:{}:{}:jobs'.format(basicreqid,wflowconfig)
 
 def jobguid_to_celery_key(jobguid):
     return 'recast:{}:celery'.format(jobguid)
@@ -24,11 +24,11 @@ def celery_to_jobguid(celeryid):
 def jobguid_message_key(jobguid):
     return 'recast:{}:msgs'.format(jobguid)
 
-def register_job(basicreqid,backend,jobguid):
-    #append his job to list of jobs of the request:parameter:backend
+def register_job(basicreqid,wflowconfig,jobguid):
+    #append his job to list of jobs of the request:parameter:wflowconfig
     red = get_redis()
-    joblist = joblist_key(basicreqid,backend)
-    log.info('taking note of a processing for basic request %s with backend %s. jobguid: %s store under: %s',basicreqid,backend,jobguid,joblist)
+    joblist = joblist_key(basicreqid,wflowconfig)
+    log.info('taking note of a processing for basic request %s with wflowconfig %s. jobguid: %s store under: %s',basicreqid,wflowconfig,jobguid,joblist)
     red.rpush(joblist,jobguid)
 
 def map_job_to_celery(jobguid,asyncresult_id):
@@ -57,11 +57,11 @@ def get_result_obj(jobguid):
 def get_celery_status(celery_id):
     return celery.result.AsyncResult(celery_id).state
 
-def get_processings(basicreqid,backend):
+def get_processings(basicreqid,wflowconfig):
     red = get_redis()
-    jobs = red.lrange(joblist_key(basicreqid,backend),0,-1)
-    return [{'job':job,'backend':backend,'celery':get_celery_status(get_celery_id(job))} for job in jobs]
+    jobs = red.lrange(joblist_key(basicreqid,wflowconfig),0,-1)
+    return [{'job':job,'wflowconfig':wflowconfig,'celery':get_celery_status(get_celery_id(job))} for job in jobs]
 
-def get_flattened_jobs(app,basicreq,backends):
+def get_flattened_jobs(app,basicreq,wflowconfigs):
     app.set_current()
-    return [x for this_backend_proc in [get_processings(basicreq,b) for b in backends] for x in this_backend_proc]
+    return [x for this_config_proc in [get_processings(basicreq,wc) for wc in wflowconfigs] for x in this_config_proc]

@@ -1,57 +1,102 @@
-capbackend_config:
-  results:
-      - workflow: 'from-github/pseudocap:ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml'
-        results:
-          - 'histfitprepare/out.yield'
-          - 'histfitprepare/out.root'
-          - 'fit/fit.tgz'
-          - 'postproc/results.yaml'
-        recastresult:
-          adapter: recastbackend.recastadapters:pMSSMFormat_BestSR
-          yamlfilepath: results.yaml
-      - workflow: 'from-github/phenochain:madgraph_delphes.yml'
-        results:
-          - 'pythia/output.hepmc'
-          - 'delphes/output.lhco'
-          - 'delphes/output.root'
-        recastresult:
-          adapter: recastbackend.recastadapters:null_result
-      - workflow: 'from-github/higgsmcproduction:rootflow-combined.yml'
-        results:
-          - 'rootmerge/anamerged.root'
-          - 'grid/grid.tar.gz'
-        recastresult:
-          adapter: recastbackend.recastadapters:null_result
-      - workflow: 'from-github/phenochain:madgraph_delphes_athena.yml'
-        results:
-          - 'pythia/output.hepmc'
-          - 'delphes/output.lhco'
-          - 'delphes/output.root'
-          - 'athena/plot.png'
-        recastresult:
-          adapter: recastbackend.recastadapters:null_result
-      - workflow: 'from-github/trivial_recast:rootflow.yml'
-        results:
-          - 'recast/recast.json'
-        recastresult:
-          adapter: recastbackend.recastadapters:standard_result
-          jsonfilepath: 'recast.json'
-      - workflow: from-github/phenochain/checkmate_workflow:workflow.yml
-        results:
-          - 'format_results/limits.json'
-        recastresult:
-          adapter: recastbackend.recastadapters:standard_result
-          jsonfilepath: 'limits.json'
-          force_float: true
-  recast_workflow_config:
-    - analysis_id: 1
-      toplevel: from-github/trivial_recast
-      workflow: rootflow.yml
-    - analysis_id: 3
+plugin_configs:
+  yadageworkflow:
+      results:
+        - workflow: 'from-github/trivial_recast:rootflow.yml'
+          results:
+            - 'recast/recast.json'
+          recastresult:
+            adapter: recastbackend.recastadapters:standard_result
+            jsonfilepath: 'recast.json'
+        - workflow: from-github/phenochain/checkmate_workflow:workflow.yml
+          results:
+            - 'format_results/limits.json'
+          recastresult:
+            adapter: recastbackend.recastadapters:standard_result
+            jsonfilepath: 'limits.json'
+            force_float: true
+
+recast_wflowconfigs:
+  - scanid: 1
+    configname: 'original analysis'
+    wflowplugin: yadageworkflow
+    config:
       toplevel: from-github/pseudocap
       workflow: ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml
-    - analysis_id: 2
+  - scanid: 2
+    configname: 'original analysis'
+    wflowplugin: yadageworkflow
+    config:
+      toplevel: from-github/pseudocap
+      workflow: ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml
+  - scanid: 3
+    configname: dummyconfig
+    wflowplugin: yadageworkflow
+    config:
+      toplevel: from-github/trivial_recast
+      workflow: rootflow.yml
+  - scanid: 4
+    configname: stopcheckmate
+    wflowplugin: yadageworkflow
+    config:
       toplevel: from-github/phenochain/checkmate_workflow
       workflow: workflow.yml
       preset_pars:
         analysis: atlas_conf_2013_047
+
+# capbackend_config:
+#   results:
+#       - workflow: 'from-github/pseudocap:ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml'
+#         results:
+#           - 'histfitprepare/out.yield'
+#           - 'histfitprepare/out.root'
+#           - 'fit/fit.tgz'
+#           - 'postproc/results.yaml'
+#         recastresult:
+#           adapter: recastbackend.recastadapters:pMSSMFormat_BestSR
+#           yamlfilepath: results.yaml
+#       - workflow: 'from-github/phenochain:madgraph_delphes.yml'
+#         results:
+#           - 'pythia/output.hepmc'
+#           - 'delphes/output.lhco'
+#           - 'delphes/output.root'
+#         recastresult:
+#           adapter: recastbackend.recastadapters:null_result
+#       - workflow: 'from-github/higgsmcproduction:rootflow-combined.yml'
+#         results:
+#           - 'rootmerge/anamerged.root'
+#           - 'grid/grid.tar.gz'
+#         recastresult:
+#           adapter: recastbackend.recastadapters:null_result
+#       - workflow: 'from-github/phenochain:madgraph_delphes_athena.yml'
+#         results:
+#           - 'pythia/output.hepmc'
+#           - 'delphes/output.lhco'
+#           - 'delphes/output.root'
+#           - 'athena/plot.png'
+#         recastresult:
+#           adapter: recastbackend.recastadapters:null_result
+#       - workflow: 'from-github/trivial_recast:rootflow.yml'
+#         results:
+#           - 'recast/recast.json'
+#         recastresult:
+#           adapter: recastbackend.recastadapters:standard_result
+#           jsonfilepath: 'recast.json'
+#       - workflow: from-github/phenochain/checkmate_workflow:workflow.yml
+#         results:
+#           - 'format_results/limits.json'
+#         recastresult:
+#           adapter: recastbackend.recastadapters:standard_result
+#           jsonfilepath: 'limits.json'
+#           force_float: true
+#   recast_workflow_config:
+#     - analysis_id: 1
+#       toplevel: from-github/trivial_recast
+#       workflow: rootflow.yml
+#     - analysis_id: 3
+#       toplevel: from-github/pseudocap
+#       workflow: ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml
+#     - analysis_id: 2
+#       toplevel: from-github/phenochain/checkmate_workflow
+#       workflow: workflow.yml
+#       preset_pars:
+#         analysis: atlas_conf_2013_047

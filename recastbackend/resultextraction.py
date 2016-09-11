@@ -1,17 +1,21 @@
-from recastbackend.recastconfig import cap_workflow_config, cap_adapter_config
+from recastbackend.recastconfig import yadage_adapter_config
 import importlib
-def extract_result(resultdir,analysis_id,backend):
-    if backend == 'capbackend':
-        return extract_capbackend_result(resultdir,analysis_id)
+
+import catalogue
+
+def extract_result(resultdir,scanreqid,wflowconfigname):
+    wflowconfig = catalogue.recastcatalogue()[int(scanreqid)][wflowconfigname]
+    if wflowconfig['wflowplugin'] == 'yadageworkflow':
+        return extract_yadageworkflow_result(resultdir,wflowconfig['config'])
     raise RuntimeError
 
-def extract_capbackend_result(resultdir,analysis_id):
-    print 'extracting results for {} {}'.format(resultdir,analysis_id)
-    workflow_config = cap_workflow_config[analysis_id]
-    configkey = ':'.join([workflow_config['toplevel'],workflow_config['workflow']])
+def extract_yadageworkflow_result(resultdir,wflowconfig):
+    print 'extracting results for {} {}'.format(resultdir,wflowconfig)
+    wflowkey = '{}:{}'.format(wflowconfig['toplevel'],wflowconfig['workflow'])
 
+    print 'key',wflowkey
 
-    aconf = cap_adapter_config[configkey].copy()
+    aconf = yadage_adapter_config()[wflowkey]
     print 'adapter config is: {}'.format(aconf)
 
     modulename,attr = aconf.pop('adapter').split(':')

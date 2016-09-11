@@ -1,13 +1,24 @@
 import yaml
 import pkg_resources
-backendconfig = yaml.load(pkg_resources.resource_stream('recastbackend','resources/backendconfig.yml'))
+from recastconfig import backendconfig
 
-backends = [
-    {
-        'name':'capbackend',
-        'analyses':backendconfig['capbackend_config']['recast_workflow_config']
-    }
-]
+def recastcatalogue():
+    # for now we'll just reload the file each time later we might reference a database or public repo
+    # that can receive pull requests
 
-def getBackends(analysid_id):
-    return [b['name'] for b in backends if analysid_id in [a['analysis_id'] for a in b['analyses']]]
+    # the goal is to return a list of configurations for scan requests that come from the frontend
+    # it will be indexed by the scan request ID
+
+    # {
+    #     '<scanreq>':{
+    #         '<configA>':{}
+    #         '<configB>':{}
+    #     }
+    # }
+    configdata = {}
+    for x in backendconfig()['recast_wflowconfigs']:
+        configdata.setdefault(x['scanid'],{}).setdefault(x['configname'],{
+            'wflowplugin': x['wflowplugin'],
+            'config': x['config']
+        })
+    return configdata

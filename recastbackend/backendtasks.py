@@ -17,14 +17,14 @@ from celery import shared_task
 
 env.use_ssh_config = True
 
-def generic_upload_results(resultdir,user,host,port,base,backend):
+def generic_upload_results(resultdir,user,host,port,base,wflowconfigname):
     #make sure the directory for this point is present
 
     def fabric_command():
         run('mkdir -p {}'.format(base))
-        run('(test -d {base}/{backend} && rm -rf {base}/{backend}) || echo "not present yet" '.format(base = base,backend = backend))
-        run('mkdir {base}/{backend}'.format(base = base, backend = backend))
-        put('{}/*'.format(resultdir),'{base}/{backend}'.format(base = base, backend = backend))
+        run('(test -d {base}/{wflowconfigname} && rm -rf {base}/{wflowconfigname}) || echo "not present yet" '.format(base = base,wflowconfigname = wflowconfigname))
+        run('mkdir {base}/{wflowconfigname}'.format(base = base, wflowconfigname = wflowconfigname))
+        put('{}/*'.format(resultdir),'{base}/{wflowconfigname}'.format(base = base, wflowconfigname = wflowconfigname))
 
     execute(fabric_command,hosts = '{user}@{host}:{port}'.format(user = user,host = host,port = port))
 
@@ -110,9 +110,9 @@ def getresultlist(ctx):
 
 def generic_onsuccess(ctx):
 
-    jobguid       = ctx['jobguid']
-    backend       = ctx['backend']
-    shipout_base  = ctx['shipout_base']
+    jobguid = ctx['jobguid']
+    wflowconfigname = ctx['wflowconfigname']
+    shipout_base = ctx['shipout_base']
 
     log.info('success for job %s, gathering results... ',jobguid)
 
@@ -124,7 +124,7 @@ def generic_onsuccess(ctx):
                            os.environ['RECAST_SHIP_HOST'],
                            os.environ['RECAST_SHIP_PORT'],
                            shipout_base,
-                           backend)
+                           wflowconfigname)
 
     log.info('done with uploading results')
 
