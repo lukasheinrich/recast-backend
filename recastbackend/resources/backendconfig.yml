@@ -23,6 +23,12 @@ plugin_configs:
           recastresult:
             adapter: recastbackend.recastadapters:pMSSMFormat_BestSR
             yamlfilepath: results.yaml
+        - workflow: 'from-github/pseudocap/multibjet_run2:workflow.yml'
+          results:
+            - 'fit/fitoutput.json'
+          recastresult:
+            adapter: recastbackend.recastadapters:standard_result
+            yamlfilepath: fitoutput.json
 recast_wflowconfigs:
   - scanid: 1
     configname: 'atlas_ewksusy_2l'
@@ -50,3 +56,9 @@ recast_wflowconfigs:
       workflow: workflow.yml
       preset_pars:
         analysis: atlas_conf_2013_047
+  - scanid: 5
+    configname: mbj_run2
+    wflowplugin: yadageworkflow
+    config:
+      toplevel: from-github/pseudocap/multibjet_run2
+      workflow: workflow.yml
