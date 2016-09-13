@@ -28,7 +28,7 @@ plugin_configs:
             - 'fit/fitoutput.json'
           recastresult:
             adapter: recastbackend.recastadapters:standard_result
-            yamlfilepath: fitoutput.json
+            jsonfilepath: fitoutput.json
 recast_wflowconfigs:
   - scanid: 1
     configname: 'atlas_ewksusy_2l'
