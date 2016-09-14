@@ -30,25 +30,13 @@ plugin_configs:
             adapter: recastbackend.recastadapters:standard_result
             jsonfilepath: fitoutput.json
 recast_wflowconfigs:
-  - scanid: 1
-    configname: 'atlas_ewksusy_2l'
-    wflowplugin: yadageworkflow
-    config:
-      toplevel: from-github/pseudocap
-      workflow: ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml
-  - scanid: 2
-    configname: 'atlas_ewksusy_2l'
-    wflowplugin: yadageworkflow
-    config:
-      toplevel: from-github/pseudocap
-      workflow: ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml
-  - scanid: 3
+  - analysisid: 1
     configname: dummyconfig
     wflowplugin: yadageworkflow
     config:
       toplevel: from-github/trivial_recast
       workflow: rootflow.yml
-  - scanid: 4
+  - analysisid: 2
     configname: stopcheckmate
     wflowplugin: yadageworkflow
     config:
@@ -56,7 +44,13 @@ recast_wflowconfigs:
       workflow: workflow.yml
       preset_pars:
         analysis: atlas_conf_2013_047
-  - scanid: 5
+  - analysisid: 3
+    configname: 'atlas_ewksusy_2l'
+    wflowplugin: yadageworkflow
+    config:
+      toplevel: from-github/pseudocap
+      workflow: ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml
+  - analysisid: 6
     configname: mbj_run2
     wflowplugin: yadageworkflow
     config:

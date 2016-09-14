@@ -22,16 +22,16 @@ def submit_celery(ctx,queue):
     map_job_to_celery(ctx['jobguid'],result.id)
     return result
 
-def submit_recast_request(basicreqid,scanreqid,wflowconfigname):
-    log.info('submitting recast request for basic request #%s part of scanreqid: %s wflowconfig %s ',basicreqid,scanreqid,wflowconfigname)
+def submit_recast_request(basicreqid,analysisid,wflowconfigname):
+    log.info('submitting recast request for basic request #%s part of analysisid: %s wflowconfig %s ',basicreqid,analysisid,wflowconfigname)
     ctx = None
 
     allconfigs = recastcatalogue()
-    thisconfig = allconfigs[int(scanreqid)][wflowconfigname]
+    thisconfig = allconfigs[int(analysisid)][wflowconfigname]
     print 'doing nothing flow now....',thisconfig
     if thisconfig['wflowplugin'] == 'yadageworkflow':
         print 'ok we can run this via the yadage workers... '
-        ctx = backendcontexts.yadage_context_for_recast(basicreqid,scanreqid,wflowconfigname,thisconfig)
+        ctx = backendcontexts.yadage_context_for_recast(basicreqid,wflowconfigname,thisconfig)
         log.info('submitting context %s',ctx)
         result = submit_celery(ctx,'recast_cap_queue')
         register_job(basicreqid,wflowconfigname,ctx['jobguid'])

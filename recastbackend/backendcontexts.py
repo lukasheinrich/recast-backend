@@ -29,7 +29,7 @@ def yadage_context(common_context,workflow,toplevel = 'from-github/pseudocap', p
     })
     return ctx
 
-def yadage_context_for_recast(basicreqid,scanreqid,wflowconfigname,wflowconfig):
+def yadage_context_for_recast(basicreqid,wflowconfigname,wflowconfig):
     fileurl = recastapi.request.read.request_archive_for_request(basicreqid,dry_run = True)
     outputdir = recastbackend.resultaccess.basicreqpath(basicreqid)
     ctx = common_context(fileurl,outputdir,wflowconfigname)
