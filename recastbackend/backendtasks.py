@@ -192,7 +192,7 @@ def run_analysis_standalone(setupfunc,onsuccess,teardownfunc,ctx,redislogging = 
 
         if redislogging:
             logger, handler = setupLogging(jobguid)
-        log.info('running analysis on worker: %s',socket.gethostname())
+        log.info('running analysis on worker: %s %s',socket.gethostname(),os.envion.get('RECAST_DOCKERHOST',''))
 
         setupfunc(ctx)
         try:

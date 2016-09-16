@@ -1,5 +1,3 @@
-import yaml
-import pkg_resources
 from recastconfig import backendconfig
 
 def recastcatalogue():

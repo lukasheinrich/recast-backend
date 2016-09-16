@@ -37,4 +37,4 @@ def submit_recast_request(basicreqid,analysisid,wflowconfigname):
         register_job(basicreqid,wflowconfigname,ctx['jobguid'])
         return ctx['jobguid'],result.id
     else:
-        raise RuntimeError('do not know how to construct context for backend: %s',backend)
+        raise RuntimeError('do not know how to construct context for plugin: %s',thisconfig['wflowplugin'])
