@@ -20,6 +20,7 @@ setup(
     'recast-api',
     'socket.io-emitter',
     'requests',
+    'glob2'
   ],
   dependency_links = [
     'https://github.com/lukasheinrich/socket.io-python-emitter/tarball/master#egg=socket.io-emitter-0.0.1',

@@ -4,7 +4,7 @@ import shutil
 import importlib
 import logging
 import requests
-import glob
+import glob2
 import socket
 
 from recastbackend.messaging import setupLogging
@@ -78,7 +78,7 @@ def isolate_results(jobguid,resultlist):
     os.makedirs(resultdir)
 
     for result,resultpath in ((r,os.path.abspath('{}/{}'.format(workdir,r))) for r in resultlist):
-        globresult = glob.glob(resultpath)
+        globresult = glob2.glob(resultpath)
         if not globresult:
             log.warning('no matches for glob %s',resultpath)
         for thing in globresult:
@@ -192,7 +192,7 @@ def run_analysis_standalone(setupfunc,onsuccess,teardownfunc,ctx,redislogging = 
 
         if redislogging:
             logger, handler = setupLogging(jobguid)
-        log.info('running analysis on worker: %s %s',socket.gethostname(),os.envion.get('RECAST_DOCKERHOST',''))
+        log.info('running analysis on worker: %s %s',socket.gethostname(),os.environ.get('RECAST_DOCKERHOST',''))
 
         setupfunc(ctx)
         try:
