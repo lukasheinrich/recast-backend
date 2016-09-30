@@ -8,6 +8,10 @@ CELERY_TRACK_STARTED = True
 CELERYD_PREFETCH_MULTIPLIER = 1
 BROKER_URL = 'redis://{}'.format(CELERY_REDIS_HOST)
 
+
+# We don't want results (including Task States) to expire
+CELERY_TASK_RESULT_EXPIRES = None
+
 # this sets the time window in which a task must start on a worker that fetched the task
 # before the task is redelivered to another worker. Since the prefetch multiplier means
 # that one task can be fetched while another is still running on the worker this window
