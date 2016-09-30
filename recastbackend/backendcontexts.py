@@ -15,7 +15,7 @@ def common_context(input_url,outputdir,wflowconfigname):
     return ctx
 
 def generic_yadage_outputs():
-    return ['_adage','_yadage']
+    return ['_adage','_yadage','**/*.log']
 
 def yadage_context(common_context,workflow,toplevel = 'from-github/pseudocap', preset_pars = {}):
     wflowkey = '{}:{}'.format(toplevel,workflow)
