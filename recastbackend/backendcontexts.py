@@ -17,16 +17,19 @@ def common_context(input_url,outputdir,wflowconfigname):
 def generic_yadage_outputs():
     return ['_adage','_yadage','**/*.log']
 
-def yadage_context(common_context,workflow,toplevel = 'from-github/pseudocap', preset_pars = {}):
+def yadage_context(common_context,workflow,toplevel = 'from-github/pseudocap', preset_pars = {}, explicit_results = None):
     wflowkey = '{}:{}'.format(toplevel,workflow)
     ctx = common_context
     ctx.update(**{
         'entry_point':'recastcap.backendtasks:recast',
         'toplevel':toplevel,
         'workflow':workflow,
-        'resultlist':generic_yadage_outputs() + yadage_result_config()[wflowkey],
         'fixed_pars':preset_pars
     })
+    if not explicit_results:
+        ctx['resultlist'] = generic_yadage_outputs() + yadage_result_config()[wflowkey]
+    else:
+        ctx['resultlist'] = explicit_results
     return ctx
 
 def yadage_context_for_recast(basicreqid,wflowconfigname,wflowconfig):

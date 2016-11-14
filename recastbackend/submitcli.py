@@ -9,7 +9,7 @@ import backendcontexts
 def track_result(result,jobguid):
     for msgdata,_ in yield_from_celery(app,jobguid, lambda: result.ready()):
         click.secho('{date} :: {msg}'.format(**msgdata))
-    
+
 
 @click.group()
 def submit():
@@ -22,41 +22,22 @@ def submit():
 @click.option('-t','--toplevel', default = 'from-github/pseudocap')
 @click.option('-q','--queue', default = 'recast_cap_queue')
 @click.option('--track/--no-track',default = False)
-def cap(input_url,workflow,outputdir,track,queue,toplevel):
-    ctx = backendcontexts.common_context(input_url,os.path.abspath(outputdir),backend = 'capbackend')
-    backendcontexts.cap_context(ctx,workflow,toplevel)
-
+def yadage(input_url,workflow,outputdir,track,queue,toplevel):
+    outputdir = outputdir
+    ctx = backendcontexts.common_context(input_url,outputdir,'dummyconfigname')
+    wflowconfig = {
+        'workflow':'madgraph_delphes.yml',
+        'toplevel':'from-github/phenochain',
+        'preset_pars':{}
+    }
+    explicit_results = backendcontexts.generic_yadage_outputs() + ['delphes/out.root']
+    ctx = backendcontexts.yadage_context(
+        ctx,wflowconfig['workflow'],
+        wflowconfig['toplevel'],
+        wflowconfig.get('preset_pars',{}),
+        explicit_results = explicit_results
+    )
     result = submit_celery(ctx,queue)
     click.secho('submitted job with guid: {}'.format(ctx['jobguid']),fg = 'green')
     if track:
         track_result(result,ctx['jobguid'])
-
-
-
-@click.argument('input_url')
-@click.argument('name')
-@click.argument('queue')
-@click.argument('outputdir')
-@click.option('--track/--no-track',default = False)
-def none_submit(input_url,name,queue,outputdir,track):
-    print "hello"
-    
-    print yield_from_celery
-    
-    # if not name in analysis_names_map:
-    #   click.secho('analysis not known', fg = 'red')
-    #   return
-    #
-    # analysis_name = analysis_names_map[name]['module']
-    # resultlist = analysis_names_map[name]['resultlist']
-    #
-    # app.set_current()
-    #
-    # jobguid,result =  submit_generic_dedicated(analysis_name,
-    #                                            queue,
-    #                                            input_url,
-    #                                            os.path.abspath(outputdir),
-    #                                                resultlist = resultlist)
-    # return
-    # map_job_to_celery(jobguid,result.id)
-
