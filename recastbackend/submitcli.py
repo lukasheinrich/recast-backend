@@ -18,23 +18,19 @@ def submit():
 @submit.command()
 @click.argument('input_url')
 @click.argument('workflow')
+@click.argument('outputs')
 @click.argument('outputdir')
 @click.option('-t','--toplevel', default = 'from-github/pseudocap')
 @click.option('-q','--queue', default = 'recast_cap_queue')
 @click.option('--track/--no-track',default = False)
-def yadage(input_url,workflow,outputdir,track,queue,toplevel):
+def yadage(input_url,workflow,outputs,outputdir,track,queue,toplevel):
     outputdir = outputdir
-    ctx = backendcontexts.common_context(input_url,outputdir,'dummyconfigname')
-    wflowconfig = {
-        'workflow':'madgraph_delphes.yml',
-        'toplevel':'from-github/phenochain',
-        'preset_pars':{}
-    }
-    explicit_results = backendcontexts.generic_yadage_outputs() + ['delphes/out.root']
+    ctx = backendcontexts.common_context(input_url,outputdir,'fromcli')
+    explicit_results = backendcontexts.generic_yadage_outputs() + outputs.split(',')
     ctx = backendcontexts.yadage_context(
-        ctx,wflowconfig['workflow'],
-        wflowconfig['toplevel'],
-        wflowconfig.get('preset_pars',{}),
+        ctx,workflow,
+        toplevel,
+        {},
         explicit_results = explicit_results
     )
     result = submit_celery(ctx,queue)
