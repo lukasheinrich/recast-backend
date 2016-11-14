@@ -1,5 +1,4 @@
 import click
-import os
 from recastbackend.fromenvapp import app
 
 from recastbackend.submission import submit_celery
