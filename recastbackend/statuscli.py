@@ -1,7 +1,8 @@
 import click
 from recastbackend.fromenvapp import app as celeryapp
+celeryapp.set_current()
+
 from recastbackend.jobstate import get_redis,get_celery_status,get_celery_id
-from celery.result import AsyncResult
 import re
 
 
@@ -21,7 +22,6 @@ def jobstatus(jobid):
     status = get_celery_status(celerytask)
     click.secho('Job {} (Celery {}) status: {}'.format(jobid,celerytask,status), fg = 'blue')
 
-import re
 @status.command()
 def jobs():
     r = get_redis()
