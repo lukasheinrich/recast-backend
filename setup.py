@@ -9,6 +9,7 @@ setup(
            'recast-directsub  = recastbackend.submitcli:submit',
            'recast-listen     = recastbackend.listener:listen',
            'recast-track      = recastbackend.tracker:track',
+           'recast-status      = recastbackend.statuscli:status',
          ]
 },
   include_package_data = True,
