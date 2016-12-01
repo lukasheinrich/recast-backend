@@ -2,14 +2,14 @@ import json
 import datetime
 import click
 import importlib
-from recastbackend.listener import yield_from_celery
-from recastbackend.jobstate import get_result_obj
-from recastbackend.messaging import get_stored_messages
+
+from recastbackend.listener import yield_from_redis
+from recastbackend.jobstate import get_result_obj, get_stored_messages
 
 @click.command()
 @click.argument('jobguid')
 @click.option('-e','--exit')
-@click.option('-c','--celeryapp',default = 'recastbackend.fromenvapp:app')
+@click.option('-c','--celeryapp',default = 'recastcelery.fromenvapp:app')
 def track(celeryapp,jobguid,exit):
     try:
         module,attr = celeryapp.split(':')
@@ -33,7 +33,7 @@ def track(celeryapp,jobguid,exit):
         click.secho('=====================',fg = 'green')
 
         result = get_result_obj(jobguid)
-        for msgdata,_ in yield_from_celery(app,jobguid, lambda: result.ready()):
+        for msgdata,_ in yield_from_redis(app,jobguid, lambda: result.ready()):
             click.secho('{date} :: {msg}'.format(**msgdata))
 
     except KeyboardInterrupt:

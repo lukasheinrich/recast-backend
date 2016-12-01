@@ -1,8 +1,8 @@
 import click
-from recastbackend.fromenvapp import app as celeryapp
-celeryapp.set_current()
-
+from recastcelery.fromenvapp import app as celeryapp
 from recastbackend.jobstate import get_redis,get_celery_status,get_celery_id
+
+celeryapp.set_current()
 import re
 
 

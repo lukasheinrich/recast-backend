@@ -2,21 +2,6 @@ version: '2'
 services:
   redis:
     image: redis
-  webserver:
-    command: recast-control-center server
-    #stdin_open: true
-    #tty: true
-    image: recastcc
-    environment:
-      - CELERY_REDIS_HOST=redis
-      - CELERY_REDIS_PORT=6379
-      - CELERY_REDIS_DB=0
-      - RECAST_RESULT_BASE=/recastdata
-    volumes:
-      - recastdata:/recastdata
-      - quarantine:/quarantinedata
-    ports:
-      - 80:8000
   headnode:
     image: lukasheinrich/recast-backend
     #try this in interactive session:
@@ -25,20 +10,21 @@ services:
     stdin_open: true
     tty: true
     environment:
-      - CELERY_REDIS_HOST=redis
-      - CELERY_REDIS_PORT=6379
-      - CELERY_REDIS_DB=0
+      - RECAST_CELERY_REDIS_HOST=redis
+      - RECAST_CELERY_REDIS_PORT=6379
+      - RECAST_CELERY_REDIS_DB=0
     volumes:
       - recastdata:/recastdata
       - quarantine:/quarantinedata
   plugin:
     image: lukasheinrich/recast-cap-demo
     command: bash -c 'mkdir -p /root/.ssh; cat /secrets/ssh/id_rsa > /root/.ssh/id_rsa; chmod 400 /root/.ssh/id_rsa; ssh-keyscan -t rsa shiptarget >> ~/.ssh/known_hosts;cd /workdirsdata; celery worker -A recastbackend.fromenvapp:app -l debug -Q recast_cap_queue'
+
     environment:
       - C_FORCE_ROOT=yes
-      - CELERY_REDIS_HOST=redis
-      - CELERY_REDIS_PORT=6379
-      - CELERY_REDIS_DB=0
+      - RECAST_CELERY_REDIS_HOST=redis
+      - RECAST_CELERY_REDIS_PORT=6379
+      - RECAST_CELERY_REDIS_DB=0
       - RECAST_SHIP_USER=root
       - RECAST_SHIP_HOST=shiptarget
       - RECAST_SHIP_PORT=22

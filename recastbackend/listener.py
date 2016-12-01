@@ -39,13 +39,13 @@ def get_socket_pubsub(celery_app):
     pubsub.subscribe('socket.io#emitter')
     return pubsub
 
-def yield_from_celery(app, room = None, breaker = lambda: False):
+def yield_from_redis(app, room = None, breaker = lambda: False):
     pubsub = get_socket_pubsub(app)
     for rooms,msgdata in yield_room_msg_until(pubsub,room,breaker):
         yield msgdata,rooms
 
 def wait_and_echo(result, room = None):
-    for msgdata,rooms in yield_from_celery(celery.current_app,room, lambda: result.ready()):
+    for msgdata,rooms in yield_from_redis(celery.current_app,room, lambda: result.ready()):
         info = click.style('received message to rooms {rooms}: '.format(rooms = rooms), fg = 'black')
         msg   = click.style('{date} -- {msg}'.format(**msgdata),fg = 'blue')
         click.secho(info + msg)
@@ -68,7 +68,7 @@ def listen(celeryapp):
         try:
             click.secho('connected! start listening',fg = 'green')
             
-            for msgdata,rooms in yield_from_celery(app):
+            for msgdata,rooms in yield_from_redis(app):
                 info = click.style('received message to rooms {rooms}: '.format(rooms = rooms),
                                    fg = 'black')
                 msg   = click.style('{date} -- {msg}'.format(**msgdata),fg = 'blue')

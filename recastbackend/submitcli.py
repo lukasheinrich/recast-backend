@@ -1,14 +1,14 @@
 import click
 import os
 import yaml
-from recastbackend.fromenvapp import app
+from recastcelery.fromenvapp import app
 
 from recastbackend.submission import submit_celery
-from recastbackend.listener import yield_from_celery
+from recastbackend.listener import yield_from_redis
 import backendcontexts
 
 def track_result(result,jobguid):
-    for msgdata,_ in yield_from_celery(app,jobguid, lambda: result.ready()):
+    for msgdata,_ in yield_from_redis(app,jobguid, lambda: result.ready()):
         click.secho('{date} :: {msg}'.format(**msgdata))
 
 

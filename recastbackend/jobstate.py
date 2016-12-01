@@ -4,13 +4,10 @@ import redis
 import logging
 import os
 
-log = logging.getLogger(__name__)
+from recastcelery.messaging import get_redis, jobguid_message_key
+from recastcelery.messaging import get_stored_messages as celerymessages
 
-def get_redis():
-    log.info('getting celery from %s',os.environ['RECAST_CELERY_REDIS_HOST'])
-    return redis.StrictRedis(host = os.environ['RECAST_CELERY_REDIS_HOST'],
-                               db = os.environ['RECAST_CELERY_REDIS_DB'],
-                             port = os.environ['RECAST_CELERY_REDIS_PORT'])
+log = logging.getLogger(__name__)
 
 def joblist_key(basicreqid,wflowconfig):
     return 'recast:{}:{}:jobs'.format(basicreqid,wflowconfig)
@@ -21,9 +18,6 @@ def jobguid_to_celery_key(jobguid):
 def celery_to_jobguid(celeryid):
     return 'recast:{}:jobguid'.format(celeryid)
 
-def jobguid_message_key(jobguid):
-    return 'recast:{}:msgs'.format(jobguid)
-
 def register_job(basicreqid,wflowconfig,jobguid):
     #append his job to list of jobs of the request:parameter:wflowconfig
     red = get_redis()
@@ -31,8 +25,10 @@ def register_job(basicreqid,wflowconfig,jobguid):
     log.info('taking note of a processing for basic request %s with wflowconfig %s. jobguid: %s store under: %s',basicreqid,wflowconfig,jobguid,joblist)
     red.rpush(joblist,jobguid)
 
+def get_stored_messages(jobguid):
+    return celerymessages(jobguid)
+
 def map_job_to_celery(jobguid,asyncresult_id):
-    #map job id to celery id
     red = get_redis()
 
     jobtocelery = jobguid_to_celery_key(jobguid)

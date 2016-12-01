@@ -14,12 +14,9 @@ setup(
 },
   include_package_data = True,
   install_requires = [
-    'fabric',
-    'Celery',
     'Click',
-    'redis',
     'recast-api',
-    'socket.io-emitter',
+    'recast-celery'
     'requests',
     'glob2'
   ],

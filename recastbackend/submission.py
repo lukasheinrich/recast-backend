@@ -1,24 +1,25 @@
 import logging
-import recastbackend.backendtasks
+import recastcelery.backendtasks
 import backendcontexts
 from catalogue import recastcatalogue
-import messaging
-from fromenvapp import app
-from jobstate import map_job_to_celery,register_job
+
+from recastcelery.messaging import socketlog
+from recastbackend.jobstate import map_job_to_celery,register_job
+from recastcelery.fromenvapp import app
+
 
 logging.basicConfig(level = logging.INFO)
 log = logging.getLogger(__name__)
 
 def submit_celery(ctx,queue):
     app.set_current()
-    result = recastbackend.backendtasks.run_analysis.apply_async((
-                                                     recastbackend.backendtasks.setupFromURL,
-                                                     recastbackend.backendtasks.generic_onsuccess,
-                                                     recastbackend.backendtasks.cleanup,ctx),
+    result = recastcelery.backendtasks.run_analysis.apply_async((
+                                                     recastcelery.backendtasks.setupFromURL,
+                                                     recastcelery.backendtasks.generic_onsuccess,
+                                                     recastcelery.backendtasks.cleanup,ctx),
                                                      queue = queue,)
-#                                                     countdown = 3)
 
-    messaging.socketlog(ctx['jobguid'],'registered. processed by celery id: {}'.format(result.id))
+    socketlog(ctx['jobguid'],'registered. processed by celery id: {}'.format(result.id))
     map_job_to_celery(ctx['jobguid'],result.id)
     return result
 
