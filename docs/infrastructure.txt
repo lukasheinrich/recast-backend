@@ -1,0 +1,29 @@
+                                              RECAST DESIGN
+                                             ---------------
+
+                                                                              recast-database
+                                                                               /           \
+                                                                              /             \
+                                                                             /               \
+                                                        recast-front-api-server      recast-frontend-web-server
+                                                             /
+        CAP                                                 /
+  Analysis Archive       recast-celery            recast-py-api
+            \              /        \              /         \
+             \            /          \            /           \
+              +---------------+       \          /             \
+              |recast-celery+ |        \        /            ('theorist')
+              |recast-cap-demo|      recast-backend
+              |   (yadage)    |
+              +---------------+            |
+                      |                    |
+                      |                    |
+                      |          recast-control-center
+                      |               ('exeriment')
+                      |
+                      |
+         +------------------------+
+         |        COMPUTE         |
+         +------------------------+
+         |         STORAGE        |
+         +------------------------+
