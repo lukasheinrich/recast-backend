@@ -6,23 +6,23 @@
                                                                               /             \
                                                                              /               \
                                                         recast-front-api-server      recast-frontend-web-server
-                                                             /
-        CAP                                                 /
-  Analysis Archive       recast-celery            recast-py-api
-            \              /        \              /         \
-             \            /          \            /           \
-              +---------------+       \          /             \
+                                                             /                            /
+        CAP                                                 /                            /
+  Analysis Archive       recast-celery            recast-py-api                         /
+            \              /        \              /         \                         /
+             \            /          \            /           \         +-------------+
+              +---------------+       \          /             \       /
               |recast-celery+ |        \        /            ('theorist')
               |recast-cap-demo|      recast-backend
-              |   (yadage)    |
-              +---------------+            |
-                      |                    |
-                      |                    |
-                      |          recast-control-center
-                      |               ('exeriment')
-                      |
-                      |
-         +------------------------+
+              |   (yadage)    |            /      \
+              +---------------+           /        \
+                      |                  /          \
+                      |                 /            \
+                      |       recast-control-center   |
+                      |                 \             /
+                      |                  \           /
+                      |                   \         /
+         +------------------------+      ('experiment')
          |        COMPUTE         |
          +------------------------+
          |         STORAGE        |
