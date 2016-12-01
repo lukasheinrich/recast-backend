@@ -18,7 +18,7 @@ services:
       - quarantine:/quarantinedata
   plugin:
     image: lukasheinrich/recast-cap-demo
-    command: bash -c 'ssh-keyscan -t rsa shiptarget >> ~/.ssh/known_hosts ;cd /workdirsdata; celery worker -A recastbackend.fromenvapp:app -l debug -Q recast_cap_queue'
+    command: bash -c 'ssh-keyscan -t rsa shiptarget >> ~/.ssh/known_hosts ;cd /workdirsdata; celery worker -A recastcelery.fromenvapp:app -l debug -Q recast_cap_queue'
     # command: bash
     # stdin_open: true
     # tty: true

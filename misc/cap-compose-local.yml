@@ -18,7 +18,7 @@ services:
       - quarantine:/quarantinedata
   plugin:
     image: lukasheinrich/recast-cap-demo
-    command: bash -c 'mkdir -p /root/.ssh; cat /secrets/ssh/id_rsa > /root/.ssh/id_rsa; chmod 400 /root/.ssh/id_rsa; ssh-keyscan -t rsa shiptarget >> ~/.ssh/known_hosts;cd /workdirsdata; celery worker -A recastbackend.fromenvapp:app -l debug -Q recast_cap_queue'
+    command: bash -c 'mkdir -p /root/.ssh; cat /secrets/ssh/id_rsa > /root/.ssh/id_rsa; chmod 400 /root/.ssh/id_rsa; ssh-keyscan -t rsa shiptarget >> ~/.ssh/known_hosts;cd /workdirsdata; celery worker -A recastcelery.fromenvapp:app -l debug -Q recast_cap_queue'
 
     environment:
       - C_FORCE_ROOT=yes

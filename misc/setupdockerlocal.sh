@@ -3,4 +3,4 @@ docker volume create --name quarantine
 docker volume create --name secrets
 docker run -v secrets:/secrets -it -d --name secrets busybox tail -f /dev/null
 docker cp dummyssh/ secrets:/secrets/ssh
-export RECAST_IN_DOCKER_WORKDIRS_VOL=$(docker volume inspect workdirsdata|grep Mountpoint|awk '{print $NF}'|sed 's|\"||g')
+export RECAST_IN_DOCKER_WORKDIRS_VOL=$(docker volume inspect workdirsdata -f {{.Mountpoint}})
