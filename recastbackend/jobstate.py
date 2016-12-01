@@ -1,13 +1,24 @@
 import celery
 import celery.result
-import redis
 import logging
-import os
 
-from recastcelery.messaging import get_redis, jobguid_message_key
-from recastcelery.messaging import get_stored_messages as celerymessages
+from recastcelery.messaging import get_redis
+from recastcelery.messaging import jobguid_message_key as redis_msg_keys
+from recastcelery.messaging import get_stored_messages as redis_messages
 
 log = logging.getLogger(__name__)
+
+
+### forward messaging methods
+
+def jobguid_message_key(jobguid):
+    return redis_msg_keys(jobguid)
+
+def get_stored_messages(jobguid):
+    return redis_messages(jobguid)
+
+
+###
 
 def joblist_key(basicreqid,wflowconfig):
     return 'recast:{}:{}:jobs'.format(basicreqid,wflowconfig)
@@ -24,9 +35,6 @@ def register_job(basicreqid,wflowconfig,jobguid):
     joblist = joblist_key(basicreqid,wflowconfig)
     log.info('taking note of a processing for basic request %s with wflowconfig %s. jobguid: %s store under: %s',basicreqid,wflowconfig,jobguid,joblist)
     red.rpush(joblist,jobguid)
-
-def get_stored_messages(jobguid):
-    return celerymessages(jobguid)
 
 def map_job_to_celery(jobguid,asyncresult_id):
     red = get_redis()
