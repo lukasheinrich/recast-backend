@@ -15,7 +15,7 @@ setup(
   include_package_data = True,
   install_requires = [
     'fabric',
-    'Celery==3.1.20',
+    'Celery',
     'Click',
     'redis',
     'recast-api',

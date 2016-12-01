@@ -1,16 +1,22 @@
 import os
-CELERY_RESULT_BACKEND = "redis"
-CELERY_REDIS_HOST = os.environ['RECAST_CELERY_REDIS_HOST']
-CELERY_REDIS_PORT = os.environ['RECAST_CELERY_REDIS_PORT']
-CELERY_REDIS_DB = os.environ['RECAST_CELERY_REDIS_DB']
-CELERY_IMPORTS = ('recastbackend.backendtasks',)
-CELERY_TRACK_STARTED = True
-CELERYD_PREFETCH_MULTIPLIER = 1
-BROKER_URL = 'redis://{}'.format(CELERY_REDIS_HOST)
+result_backend = 'redis'
+redis_host = os.environ['RECAST_CELERY_REDIS_HOST']
+redis_port = os.environ['RECAST_CELERY_REDIS_PORT']
+redis_db = os.environ['RECAST_CELERY_REDIS_DB']
+imports = ('recastbackend.backendtasks',)
 
+
+task_track_started = True
+task_acks_late = True
+worker_prefetch_multiplier = 1
+
+
+task_serializer = 'pickle'
+
+broker_url = 'redis://{}'.format(redis_host)
 
 # We don't want results (including Task States) to expire
-CELERY_TASK_RESULT_EXPIRES = None
+result_expires = None
 
 # this sets the time window in which a task must start on a worker that fetched the task
 # before the task is redelivered to another worker. Since the prefetch multiplier means
@@ -19,4 +25,4 @@ CELERY_TASK_RESULT_EXPIRES = None
 # to have some sensible behavior in case of a failing worker. We'll set this to 24h
 # more info: http://docs.celeryproject.org/en/latest/getting-started/brokers/redis.html
 # this was a problem initially when we thought long EWK tasks being re-executed multiple times...
-BROKER_TRANSPORT_OPTIONS = {'visibility_timeout':os.environ.get('RECAST_CELERY_VISIBILITY_TIMEOUT',86400)}
+broker_transport_options = {'visibility_timeout':os.environ.get('RECAST_CELERY_VISIBILITY_TIMEOUT',86400)}

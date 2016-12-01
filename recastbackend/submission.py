@@ -15,8 +15,8 @@ def submit_celery(ctx,queue):
                                                      recastbackend.backendtasks.setupFromURL,
                                                      recastbackend.backendtasks.generic_onsuccess,
                                                      recastbackend.backendtasks.cleanup,ctx),
-                                                     queue = queue,
-                                                     countdown = 3)
+                                                     queue = queue,)
+#                                                     countdown = 3)
 
     messaging.socketlog(ctx['jobguid'],'registered. processed by celery id: {}'.format(result.id))
     map_job_to_celery(ctx['jobguid'],result.id)
