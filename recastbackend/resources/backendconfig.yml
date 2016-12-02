@@ -6,13 +6,13 @@ plugin_configs:
             - 'recast/recast.json'
           recastresult:
             adapter: recastbackend.recastadapters:standard_result
-            jsonfilepath: 'recast.json'
+            jsonfilepath: 'recast/recast.json'
         - workflow: from-github/phenochain/checkmate_workflow:workflow.yml
           results:
             - 'format_results/limits.json'
           recastresult:
             adapter: recastbackend.recastadapters:standard_result
-            jsonfilepath: 'limits.json'
+            jsonfilepath: 'format_results/limits.json'
             force_float: true
         - workflow: 'from-github/pseudocap:ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml'
           results:
@@ -22,13 +22,13 @@ plugin_configs:
             - 'postproc/results.yaml'
           recastresult:
             adapter: recastbackend.recastadapters:pMSSMFormat_BestSR
-            yamlfilepath: results.yaml
+            yamlfilepath: postproc/results.yaml
         - workflow: 'from-github/pseudocap/multibjet_run2:workflow.yml'
           results:
             - 'fit/fitoutput.json'
           recastresult:
             adapter: recastbackend.recastadapters:standard_result
-            jsonfilepath: fitoutput.json
+            jsonfilepath: fit/fitoutput.json
 recast_wflowconfigs:
   - analysisid: 1
     configname: dummyconfig
