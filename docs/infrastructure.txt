@@ -54,7 +54,7 @@ B1) recast-backend
     * knows how to trigger an analysis execution (in possibly various implementations)
     * can track status of the analysis execution (done, in progresss, failed, success)
       via e.g. a DB of analysis executions
-    * has access to permament(ish) analysis result dataframents, logs,
+    * has access to permament(ish) analysis result data fragments, logs,
 
 
 B2) recast-control-center
@@ -74,11 +74,13 @@ IC1: recast-celery
      * basic interface between actual analysis execution and recast-backend via celery tasks
      * can support multiple python-based plugins that actually implement the analysis execution
      * implements logic how to transfer relvant data / fragements to execution db/result storage
+     * recast-backend can check via celery backend (redis,RabbitMQ, etc) status of execution
+     * during execution logs can be transferred in realtime
 
 IC2: recast-cap-demo (yadage)
      ------------------------
      * particular plugin for recast-celery that runs a yadage workflow engine connected to
-       an abstract compute backend and storage
+       an abstract compute backend and (transient) storage
      * is able to request analysis workflow description from CAP analysis archive
      * supervises execution of individual analysis steps (which a packaged e.g. as
        docker images/containers) that run on the compute backend
