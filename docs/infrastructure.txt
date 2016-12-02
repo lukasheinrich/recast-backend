@@ -1,18 +1,18 @@
                                               RECAST DESIGN
                                              ---------------
 
-                                                                              recast-database
-                                                                               /           \
-                                                                              /             \
-                                                                             /               \
-                                                        recast-front-api-server      recast-frontend-web-server
-                                                             /                            /
-        CAP                                                 /                            /
-  Analysis Archive       recast-celery            recast-py-api                         /
-            \              /        \              /         \                         /
-             \            /          \            /           \         +-------------+
-              +---------------+       \          /             \       /
-              |recast-celery+ |        \        /            ('theorist')
+                                                              recast-database + storage
+                        +-----------------------+                        /           \
+                        |analysis exec history  |                       /             \
+                        |results/db/storage/logs|                      /               \
+                        +-----------------------+      recast-frontend-api-server      recast-frontend-web-server
+                                |         |                   /                            /
+        CAP                     |         |                  /                            /
+  Analysis Archive       recast-celery    |       recast-py-api                         /
+            \              /        \     |        /         \                         /
+             \            /          \    |       /           \         +-------------+
+              +---------------+       \   |      /             \       /
+              |recast-celery+ |        \  |      /            ('theorist')
               |recast-cap-demo|      recast-backend
               |   (yadage)    |            /      \
               +---------------+           /        \
@@ -27,3 +27,58 @@
          +------------------------+
          |         STORAGE        |
          +------------------------+
+
+
+F: frontend components
+
+F1)  recast-database: + storage
+     ---------------------------
+    * holds request data and published result data
+
+F2)  recast-api-server / reast-frontend-we-server
+     ---------------------------
+    * basic interfaces to database, CRUD records, view records
+
+F2a) recast-py-api
+    ---------------
+    * nicer python-based layer to communicate with database, CRUD etc
+
+The public ('theorists') can use either web ui or python/(REST) ui to e.g. add new requests
+
+--------------------------------
+
+B: backend components
+
+B1) recast-backend
+    --------------
+    * knows how to trigger an analysis execution (in possibly various implementations)
+    * can track status of the analysis execution (done, in progresss, failed, success)
+      via e.g. a DB of analysis executions
+    * has access to permament(ish) analysis result dataframents, logs,
+
+
+B2) recast-control-center
+    ---------------------
+    * web ui to interact with recast-backend, view execution status, logs.. triger new executions
+
+
+The 'experiments' can use either the web ui or recast-backend directly to trigger analysis executions,
+review results, and possibly push/publish results
+
+----------------------------------
+
+IC: celery implementation components
+
+IC1: recast-celery
+     -------------
+     * basic interface between actual analysis execution and recast-backend via celery tasks
+     * can support multiple python-based plugins that actually implement the analysis execution
+     * implements logic how to transfer relvant data / fragements to execution db/result storage
+
+IC2: recast-cap-demo (yadage)
+     ------------------------
+     * particular plugin for recast-celery that runs a yadage workflow engine connected to
+       an abstract compute backend and storage
+     * is able to request analysis workflow description from CAP analysis archive
+     * supervises execution of individual analysis steps (which a packaged e.g. as
+       docker images/containers) that run on the compute backend
