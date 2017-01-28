@@ -84,7 +84,7 @@ recast_combo_workflows:
         configname: rivetgeneric
         required_interface: hepmcfiles
         config:
-          toplevel: /Users/lukas/Code/yadagedev/dynamic_compose/sherpa
+          toplevel: from-github/phenoana/generic_rivet
           workflow: rivetanflow.yml
           preset_pars:
               analysis: MC_GENERIC
