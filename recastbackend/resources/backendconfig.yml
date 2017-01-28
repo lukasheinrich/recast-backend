@@ -29,6 +29,7 @@ plugin_configs:
           recastresult:
             adapter: recastbackend.recastadapters:standard_result
             jsonfilepath: fit/fitoutput.json
+
 recast_wflowconfigs:
   - analysisid: 1
     configname: dummyconfig
@@ -56,3 +57,34 @@ recast_wflowconfigs:
     config:
       toplevel: from-github/pseudocap/multibjet_run2
       workflow: workflow.yml
+
+recast_combo_workflows:
+  yadage_combos:
+    upstream_configs:
+      - configname: stops_herwig_nllfast
+        analysis_interface: hepmc_with_xsec #the interface offered by this upstream .. a string..
+        config:
+          toplevel: from-github/phenochain/checkmate_workflow
+          workflow: generation_flow.yml
+          interface_parameters:
+            xsecfile: {stages: 'upstream.[0].compute_xsec', output: xsecfile, unwrap: true}
+            hepmcfile: {stages: 'upstream.[0].herwig', output: hepmcfile, unwrap: true}
+      
+    downstream_configs:
+      - analysisid: 1
+        configname: checkmate_atlas_conf_2013_024
+        required_interface: hepmc_with_xsec 
+        config:
+          toplevel: from-github/phenochain/checkmate_workflow
+          workflow: analysis_flow.yml
+          preset_pars:
+            analysis: atlas_conf_2013_024
+
+      - analysisid: 1
+        configname: rivetgeneric
+        required_interface: hepmcfiles
+        config:
+          toplevel: /Users/lukas/Code/yadagedev/dynamic_compose/sherpa
+          workflow: rivetanflow.yml
+          preset_pars:
+              analysis: MC_GENERIC
