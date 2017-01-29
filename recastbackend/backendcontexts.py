@@ -1,4 +1,5 @@
 import uuid
+import os
 import recastbackend.resultaccess
 import recastapi.request.read
 from recastbackend.recastconfig import yadage_result_config
@@ -44,7 +45,16 @@ def yadage_comboctx(common_context, comboconfig):
         entry_point = 'recastcap.backendtasks:recast',
         combinedspec = comboconfig
     )
-    ctx['resultlist'] = generic_yadage_outputs()
+
+    downstream_key = '{}:{}'.format(
+        comboconfig['analysis']['toplevel'],
+        comboconfig['analysis']['workflow']
+    )
+
+    downstream_results = yadage_result_config()[downstream_key]
+    downstream_results = [os.path.join('downstream',x) for x in downstream_results]
+
+    ctx['resultlist'] = generic_yadage_outputs() + downstream_results
     return ctx
 
 def yadage_context_for_recast(basicreqid,wflowconfigname,wflowconfig):
