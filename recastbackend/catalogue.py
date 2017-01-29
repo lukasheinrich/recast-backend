@@ -44,7 +44,7 @@ def recastcatalogue():
         anid = downstream['analysisid']
 
         for possible_upstream in [fromrequest]+upstream_by_iface.get(downstream['required_interface'],[]):
-            comboname = '{}/{}'.format(possible_upstream['configname'],downstream['configname'])
+            comboname = '{}-{}'.format(possible_upstream['configname'],downstream['configname'])
             config = {
                 'adapter': possible_upstream['config'], 
                 'analysis': downstream['config']
