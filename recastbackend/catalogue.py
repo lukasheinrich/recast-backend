@@ -35,9 +35,6 @@ def recastcatalogue():
             upstream
         )
 
-
-
-
     fromrequest = {
         'configname': 'requestwflow',
         'config': 'from-request'

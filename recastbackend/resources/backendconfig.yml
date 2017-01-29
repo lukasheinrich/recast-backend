@@ -29,6 +29,12 @@ plugin_configs:
           recastresult:
             adapter: recastbackend.recastadapters:standard_result
             jsonfilepath: fit/fitoutput.json
+        - workflow: 'from-github/phenoana/generic_rivet:rivetanflow.yml'
+          results:
+            - 'rivet/output.yoda'
+          recastresult:
+            adapter: recastbackend.recastadapters:standard_result
+            jsonfilepath: fit/fitoutput.json
 
 recast_wflowconfigs:
   - analysisid: 1
