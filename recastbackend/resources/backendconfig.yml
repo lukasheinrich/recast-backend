@@ -1,5 +1,7 @@
 plugin_configs:
   yadageworkflow:
+      #this is generic info on yadage workflows, what result files are relevant for RECAST
+      #and how to load them into true RECAST format (adapters...)
       results:
         - workflow: 'from-github/trivial_recast:rootflow.yml'
           results:
@@ -34,8 +36,17 @@ plugin_configs:
             - 'rivet/output.yoda'
           recastresult:
             adapter: recastbackend.recastadapters:null_result
+        - workflow: 'from-github/phenochain/checkmate_workflow:analysis_flow.yml'
+          results:
+            - 'format_results/limits.json'
+          recastresult:
+            adapter: recastbackend.recastadapters:standard_result
+            jsonfilepath: 'format_results/limits.json'
+            force_float: true
 
 recast_wflowconfigs:
+  #this is a list of full stack end-to-end workflows that take the raw RECAST request and 
+  #are able to go all the way to a RECAST result..
   - analysisid: 1
     configname: dummyconfig
     wflowplugin: yadageworkflow
@@ -64,7 +75,10 @@ recast_wflowconfigs:
       workflow: workflow.yml
 
 recast_combo_workflows:
+  #this is a list of combination workflows that split into a request-side and a analysis side
+  #while negotiating an interface amongst themselves
   yadage_combos:
+    #the above request-analysis split, explicitly for yadage
     upstream_configs:
       - configname: stops_herwig_nllfast
         analysis_interface: hepmc_with_xsec #the interface offered by this upstream .. a string..
