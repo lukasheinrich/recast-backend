@@ -107,3 +107,12 @@ recast_combo_workflows:
           workflow: rivetanflow.yml
           preset_pars:
               analysis: MC_GENERIC
+
+      - analysisid: 3
+        configname: delphesanalysis
+        required_interface: delphesroot_xsec
+        config:
+          toplevel: from-github/phenoana/generic_rivet
+          workflow: rivetanflow.yml
+          preset_pars:
+              analysis: MC_GENERIC              

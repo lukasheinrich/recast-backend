@@ -43,3 +43,14 @@ def submit_recast_request(basicreqid,analysisid,wflowconfigname):
         return ctx['jobguid'],result.id
     else:
         raise RuntimeError('do not know how to construct context for plugin: %s',thisconfig['wflowplugin'])
+
+def yadage_submission(input_url,outputdir,configname,outputs,workflow,toplevel,presetpars,queue):
+    ctx = backendcontexts.common_context(input_url,outputdir,configname)
+    ctx = backendcontexts.yadage_context(
+        ctx,workflow,
+        toplevel,
+        presetpars,
+        explicit_results = backendcontexts.generic_yadage_outputs() + outputs
+    )
+    log.info('submitting context %s',ctx)
+    return ctx, submit_celery(ctx,queue)

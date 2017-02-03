@@ -3,18 +3,19 @@ import os
 import yaml
 from recastcelery.fromenvapp import app
 
-from recastbackend.submission import submit_celery
+from recastbackend.submission import yadage_submission
 from recastbackend.listener import yield_from_redis
-import backendcontexts
 
 def track_result(result,jobguid):
     for msgdata,_ in yield_from_redis(app,jobguid, lambda: result.ready()):
         click.secho('{date} :: {msg}'.format(**msgdata))
 
 
+
 @click.group()
 def submit():
     pass
+
 
 @submit.command()
 @click.argument('input_url')
@@ -26,10 +27,6 @@ def submit():
 @click.option('-q','--queue', default = 'recast_cap_queue')
 @click.option('--track/--no-track',default = False)
 def yadage(input_url,workflow,outputs,outputdir,track,queue,toplevel,presetyml):
-    outputdir = outputdir
-    ctx = backendcontexts.common_context(input_url,outputdir,'fromcli')
-    explicit_results = backendcontexts.generic_yadage_outputs() + outputs.split(',')
-
     if presetyml:
         toload = open(presetyml) if os.path.exists(presetyml) else presetyml
         presetpars = yaml.load(toload)
@@ -38,13 +35,7 @@ def yadage(input_url,workflow,outputs,outputdir,track,queue,toplevel,presetyml):
     else:
         presetpars = {}
 
-    ctx = backendcontexts.yadage_context(
-        ctx,workflow,
-        toplevel,
-        presetpars,
-        explicit_results = explicit_results
-    )
-    result = submit_celery(ctx,queue)
+    ctx, result = yadage_submission(input_url,outputdir,'fromcli',outputs.split(','), workflow,presetpars,queue)
     click.secho('submitted job with guid: {}'.format(ctx['jobguid']),fg = 'green')
     if track:
         track_result(result,ctx['jobguid'])
