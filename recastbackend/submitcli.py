@@ -35,7 +35,7 @@ def yadage(input_url,workflow,outputs,outputdir,track,queue,toplevel,presetyml):
     else:
         presetpars = {}
 
-    ctx, result = yadage_submission(input_url,outputdir,'fromcli',outputs.split(','), workflow,presetpars,queue)
+    ctx, result = yadage_submission(input_url,outputdir,'fromcli',outputs.split(','), workflow,toplevel,presetpars,queue)
     click.secho('submitted job with guid: {}'.format(ctx['jobguid']),fg = 'green')
     if track:
         track_result(result,ctx['jobguid'])
