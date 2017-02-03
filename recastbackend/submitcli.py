@@ -24,7 +24,7 @@ def submit():
 @click.argument('outputdir')
 @click.option('-p','--presetyml', default = '')
 @click.option('-t','--toplevel', default = 'from-github/pseudocap')
-@click.option('-q','--queue', default = 'recast_cap_queue')
+@click.option('-q','--queue', default = 'recast_yadage_queue')
 @click.option('--track/--no-track',default = False)
 def yadage(input_url,workflow,outputs,outputdir,track,queue,toplevel,presetyml):
     if presetyml:

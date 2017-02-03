@@ -32,13 +32,13 @@ def submit_recast_request(basicreqid,analysisid,wflowconfigname):
     if thisconfig['wflowplugin'] == 'yadageworkflow':
         ctx = backendcontexts.yadage_context_for_recast(basicreqid,wflowconfigname,thisconfig)
         log.info('submitting context %s',ctx)
-        result = submit_celery(ctx,'recast_cap_queue')
+        result = submit_celery(ctx,'recast_yadage_queue')
         register_job(basicreqid,wflowconfigname,ctx['jobguid'])
         return ctx['jobguid'],result.id
     elif thisconfig['wflowplugin'] == 'yadagecombo':
         ctx = backendcontexts.yadage_comboctx_for_recast(basicreqid,wflowconfigname,thisconfig)
         log.info('submitting context %s',ctx)
-        result = submit_celery(ctx,'recast_cap_queue')
+        result = submit_celery(ctx,'recast_yadage_queue')
         register_job(basicreqid,wflowconfigname,ctx['jobguid'])
         return ctx['jobguid'],result.id
     else:
