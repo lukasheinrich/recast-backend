@@ -27,7 +27,7 @@ def yadage_context(common_context,workflow,toplevel = 'from-github/pseudocap', p
     wflowkey = '{}:{}'.format(toplevel,workflow)
     ctx = common_context
     ctx.update(
-        entry_point = 'recastcap.backendtasks:recast',
+        entry_point = 'recastyadage.backendtasks:recast',
         toplevel = toplevel,
         workflow = workflow,
         fixed_pars = preset_pars or {}
