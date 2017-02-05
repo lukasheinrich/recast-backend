@@ -42,7 +42,7 @@ def yadage_comboctx(common_context, comboconfig):
     ctx = common_context
 
     ctx.update(
-        entry_point = 'recastcap.backendtasks:recast',
+        entry_point = 'recastyadage.backendtasks:recast',
         combinedspec = comboconfig
     )
 
