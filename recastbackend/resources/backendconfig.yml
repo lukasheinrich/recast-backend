@@ -129,15 +129,6 @@ recast_combo_workflows:
           preset_pars:
             analysis: atlas_conf_2013_024
 
-      - analysisid: 1
-        configname: rivetgeneric
-        required_interface: hepmcfiles
-        config:
-          toplevel: from-github/phenoana/generic_rivet
-          workflow: rivetanflow.yml
-          preset_pars:
-              analysis: MC_GENERIC
-
       - analysisid: 3
         configname: delphesanalysis
         required_interface: delphesroot_xsec
