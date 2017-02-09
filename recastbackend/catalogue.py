@@ -3,6 +3,35 @@ import json
 import pkg_resources
 import copy
 
+def checkmate_catalogue():
+    template = {
+        'analysisid': None,
+        'configname': 'checkmate',
+        'required_interface': 'hepmc_with_xsec',
+        'config': {
+            'toplevel': 'from-github/phenochain/checkmate_workflow',
+            'workflow': 'analysis_flow.yml',
+            'preset_pars':{
+                'analysis': None
+            }
+        }
+    }
+    pub2recast = json.load(open(pkg_resources.resource_filename(
+                        'recastbackend',
+                        'resources/pub_to_recast.json')
+                ))
+    pub2checkmate  = json.load(open(pkg_resources.resource_filename(
+                        'recastbackend','resources/pub_to_checkmate.json')
+                ))
+
+    checkmate_downstreams = []
+    for pubid,checkmate_analysis in pub2checkmate.iteritems():
+        specific = copy.deepcopy(template)
+        specific['analysisid'] = pub2recast[pubid]
+        specific['config']['preset_pars'] = 'checkmate_analysis'
+        checkmate_downstreams.append(specific)
+    return checkmate_downstreams
+
 def rivet_catalogue():
     ''''this will spit out combo configs for all rivet analyses'''
     template = {
@@ -77,7 +106,7 @@ def recastcatalogue():
         'config': 'from-request'
     }
 
-    downstream_cfgs = comboflowcfg['downstream_configs'] + rivet_catalogue()
+    downstream_cfgs = comboflowcfg['downstream_configs'] + rivet_catalogue() + checkmate_catalogue()
 
     for downstream in downstream_cfgs:
         anid = downstream['analysisid']
