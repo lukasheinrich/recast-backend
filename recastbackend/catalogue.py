@@ -28,7 +28,7 @@ def checkmate_catalogue():
     for pubid,checkmate_analysis in pub2checkmate.iteritems():
         specific = copy.deepcopy(template)
         specific['analysisid'] = pub2recast[pubid]
-        specific['config']['preset_pars'] = checkmate_analysis
+        specific['config']['preset_pars'] = {'analysis': checkmate_analysis}
         checkmate_downstreams.append(specific)
     return checkmate_downstreams
 
@@ -62,7 +62,7 @@ def rivet_catalogue():
             specific = copy.deepcopy(template)
             specific['analysisid'] = recast_analysis_id
             specific['configname'] = 'rivet_{}'.format(analysis)
-            specific['config']['preset_pars'] = 'rivetanalysis'
+            specific['config']['preset_pars'] = {'analysis': analysis}
             rivet_downstreams.append(specific)
     return rivet_downstreams
 
