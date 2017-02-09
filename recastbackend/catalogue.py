@@ -28,7 +28,7 @@ def checkmate_catalogue():
     for pubid,checkmate_analysis in pub2checkmate.iteritems():
         specific = copy.deepcopy(template)
         specific['analysisid'] = pub2recast[pubid]
-        specific['config']['preset_pars'] = 'checkmate_analysis'
+        specific['config']['preset_pars'] = checkmate_analysis
         checkmate_downstreams.append(specific)
     return checkmate_downstreams
 
