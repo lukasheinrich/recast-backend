@@ -65,14 +65,6 @@ recast_wflowconfigs:
     config:
       toplevel: from-github/trivial_recast
       workflow: rootflow.yml
-  - analysisid: 2
-    configname: stopcheckmate
-    wflowplugin: yadageworkflow
-    config:
-      toplevel: from-github/phenochain/checkmate_workflow
-      workflow: workflow.yml
-      preset_pars:
-        analysis: atlas_conf_2013_047
   - analysisid: 3
     configname: 'atlas_ewksusy_2l'
     wflowplugin: yadageworkflow
