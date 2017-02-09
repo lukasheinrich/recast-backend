@@ -44,6 +44,18 @@ plugin_configs:
             jsonfilepath: 'format_results/limits.json'
             force_float: true
 
+        - workflow: 'from-github/recast_analyses/delphes_analysis:analysis_flow.yml'
+          results:
+            - 'fit/fitresult.json'
+          recastresult:
+            adapter: recastbackend.recastadapters:null_result
+
+        - workflow: 'from-github/recast_analyses/atlas_derivation_analysis:analysis_workflow.yml'
+          results:
+            - 'plot/plot.pdf'
+          recastresult:
+            adapter: recastbackend.recastadapters:null_result
+
 recast_wflowconfigs:
   #this is a list of full stack end-to-end workflows that take the raw RECAST request and 
   #are able to go all the way to a RECAST result..
@@ -88,7 +100,25 @@ recast_combo_workflows:
           interface_parameters:
             xsecfile: {stages: 'upstream.[0].compute_xsec', output: xsecfile, unwrap: true}
             hepmcfile: {stages: 'upstream.[0].herwig', output: hepmcfile, unwrap: true}
-      
+
+      - configname: lhe_pythia_atlas_delphes
+        analysis_interface: delphesroot_xsec #the interface offered by this upstream .. a string..
+        config:
+          toplevel: from-github/mcevgen/pythia_delphes
+          workflow: workflow.yml
+          interface_parameters: 
+            rootfiles: {stages: 'upstream.[0].delphes', output: rootfile}
+            xsec_in_pb: {stages: 'upstream.[0].init', output: xsec_in_pb, unwrap: true}
+
+      - configname: lhe_atlas_fullchain_derivation
+        analysis_interface: atlas_daod_xsec #the interface offered by this upstream .. a string..
+        config:
+          toplevel: https://raw.githubusercontent.com/lukasheinrich/xAOD-full-chain/master/yadage-defs
+          workflow: parallel_lhe_nomerge.yml
+          interface_parameters:
+            daodfiles: {stages: 'upstream.[0].parallel.[*].derivation', output: daodfile}
+            xsec_in_pb: {stages: 'upstream.[0].init', output: xsec_in_pb, unwrap: true}
+
     downstream_configs:
       - analysisid: 1
         configname: checkmate_atlas_conf_2013_024
@@ -112,7 +142,16 @@ recast_combo_workflows:
         configname: delphesanalysis
         required_interface: delphesroot_xsec
         config:
-          toplevel: from-github/phenoana/generic_rivet
-          workflow: rivetanflow.yml
+          toplevel: from-github/recast_analyses/delphes_analysis
+          workflow: analysis_flow.yml
           preset_pars:
-              analysis: MC_GENERIC              
+              bgdata: /some/bg/data
+              obsdata: /some/obs/data
+
+      - analysisid: 3
+        configname: derivation_analysis
+        required_interface: atlas_daod_xsec
+        config:
+          toplevel: from-github/recast_analyses/atlas_derivation_analysis
+          workflow: analysis_workflow.yml
+          preset_pars: {}
