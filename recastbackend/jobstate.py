@@ -3,6 +3,7 @@ import celery.result
 import logging
 import re
 
+from recastcelery.fromenvapp import app as celeryapp
 from recastcelery.messaging import get_redis
 from recastcelery.messaging import jobguid_message_key as redis_msg_keys
 from recastcelery.messaging import get_stored_messages as redis_messages
@@ -77,7 +78,7 @@ def all_jobs():
     return joblist
 
 def job_details(jobguid):
-    app.set_current()
+    celeryapp.set_current()
     celerytask = get_celery_id(jobguid)
     detail_data = {
         'job_type': 'celery',
@@ -85,3 +86,4 @@ def job_details(jobguid):
         'status': get_celery_status(celerytask)
     }
     return detail_data
+ }
