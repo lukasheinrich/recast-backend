@@ -77,6 +77,7 @@ def all_jobs():
     return joblist
 
 def job_details(jobguid):
+    app.set_current()
     celerytask = get_celery_id(jobguid)
     detail_data = {
         'job_type': 'celery',
@@ -84,8 +85,3 @@ def job_details(jobguid):
         'status': get_celery_status(celerytask)
     }
     return detail_data
-
-def job_status(jobguid):
-    celerytask = get_celery_id(jobguid)
-    status = get_celery_status(celerytask)
-    return status

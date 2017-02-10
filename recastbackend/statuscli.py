@@ -2,9 +2,6 @@ import click
 from recastcelery.fromenvapp import app as celeryapp
 from recastbackend.jobstate import all_jobs, job_status, job_details
 
-celeryapp.set_current()
-
-
 @click.group()
 def status():
     pass
@@ -23,7 +20,7 @@ def jobdetails(jobguid):
 def jobs():
     joblist = all_jobs()
     for x in joblist:
-        click.secho('{} - {}'.format(x,job_status(x)))
+        click.secho('{} - {}'.format(x,job_details(x)['status']))
 
 
 if __name__ == '__main__':
