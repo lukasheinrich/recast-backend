@@ -77,8 +77,9 @@ def all_jobs():
     joblist = [x.group(0).split(':')[1] for x in [re.match('recast:.*:celery',x) for x in red.keys()] if x]
     return joblist
 
-def job_details(jobguid):
-    celeryapp.set_current()
+def job_details(jobguid, app = None):
+    app = app or celeryapp
+    app.set_current()
     celerytask = get_celery_id(jobguid)
     detail_data = {
         'job_type': 'celery',
