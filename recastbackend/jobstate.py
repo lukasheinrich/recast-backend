@@ -1,6 +1,7 @@
 import celery
 import celery.result
 import logging
+import re
 
 from recastcelery.messaging import get_redis
 from recastcelery.messaging import jobguid_message_key as redis_msg_keys
@@ -69,3 +70,23 @@ def get_processings(basicreqid,wflowconfig):
 def get_flattened_jobs(app,basicreq,wflowconfigs):
     app.set_current()
     return [x for this_config_proc in [get_processings(basicreq,wc) for wc in wflowconfigs] for x in this_config_proc]
+
+
+def all_jobs():
+    red = get_redis()
+    joblist = [x.group(0).split(':')[1] for x in [re.match('recast:.*:celery',x) for x in red.keys()] if x]
+    return joblist
+
+def job_details(jobguid):
+    celerytask = get_celery_id(jobguid)
+    detail_data = {
+        'job_type': 'celery',
+        'celery_task': get_celery_id(jobguid),
+        'status': get_celery_status(celerytask)
+    }
+    return detail_data
+
+def job_status(jobguid):
+    celerytask = get_celery_id(jobguid)
+    status = get_celery_status(celerytask)
+    return status
