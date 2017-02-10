@@ -87,4 +87,4 @@ def job_details(jobguid, app = None):
         'status': get_celery_status(celerytask)
     }
     return detail_data
- }
+ 

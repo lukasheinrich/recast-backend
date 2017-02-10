@@ -1,6 +1,5 @@
 import click
-from recastcelery.fromenvapp import app as celeryapp
-from recastbackend.jobstate import all_jobs, job_status, job_details
+from recastbackend.jobstate import all_jobs, job_details
 
 @click.group()
 def status():
