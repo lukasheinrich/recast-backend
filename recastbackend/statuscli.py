@@ -17,7 +17,6 @@ def jobdetails(jobguid):
         jobguid,
         details['celery_task'],
         details['status']
-        ,status
     ), fg = 'blue')
 
 @status.command()

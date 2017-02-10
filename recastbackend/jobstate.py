@@ -18,7 +18,6 @@ def jobguid_message_key(jobguid):
 def get_stored_messages(jobguid):
     return redis_messages(jobguid)
 
-
 ###
 
 def joblist_key(basicreqid,wflowconfig):
