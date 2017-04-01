@@ -10,8 +10,13 @@ def common_context(input_url,outputdir,wflowconfigname):
     ctx = {
         'jobguid': jobguid,
         'inputURL':input_url,
-        'shipout_base':outputdir,
         'wflowconfigname':wflowconfigname
+        'shipout_spec': {
+            'user': os.environ['RECAST_SHIP_USER'],
+            'host': os.environ['RECAST_SHIP_HOST'],
+            'port': os.environ['RECAST_SHIP_PORT'],
+            'location': os.path.join(outputdir,wflowconfigname)
+        }
     }
     return ctx
 
