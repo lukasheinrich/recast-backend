@@ -10,7 +10,7 @@ def common_context(input_url,outputdir,wflowconfigname):
     ctx = {
         'jobguid': jobguid,
         'inputURL':input_url,
-        'wflowconfigname':wflowconfigname
+        'wflowconfigname':wflowconfigname,
         'shipout_spec': {
             'user': os.environ['RECAST_SHIP_USER'],
             'host': os.environ['RECAST_SHIP_HOST'],
