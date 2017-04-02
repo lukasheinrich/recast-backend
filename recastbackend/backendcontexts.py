@@ -70,6 +70,6 @@ def yadage_context_for_recast(basicreqid,wflowconfigname,wflowconfig):
 
 def yadage_comboctx_for_recast(basicreqid,wflowconfigname,comboconfig):
     ctx = common_contxt_for_recast(basicreqid,wflowconfigname)
-
+    
     ctx = yadage_comboctx(ctx,comboconfig['config'])
     return ctx
