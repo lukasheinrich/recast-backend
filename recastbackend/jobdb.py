@@ -45,7 +45,7 @@ def get_processings(basicreqid,wflowconfig):
     jobs = wflowprocdb.lrange(joblist_key(basicreqid,wflowconfig),0,-1)
     return [{'job':job,'wflowconfig':wflowconfig,'celery': wflowapi.workflow_status([get_celery_id(job)])} for job in jobs]
 
-def get_flattened_jobs(app,basicreq,wflowconfigs):
+def get_flattened_jobs(basicreq,wflowconfigs):
     return [x for this_config_proc in [get_processings(basicreq,wc) for wc in wflowconfigs] for x in this_config_proc]
 
 def all_jobs():
