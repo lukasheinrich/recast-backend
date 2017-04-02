@@ -30,14 +30,8 @@ def yield_room_msg_until(pubsub,room = None,breaker = lambda: False):
                 continue
         yield extras['rooms'],data['data'][1]
 
-def get_socket_pubsub():
-    publisher = wflowapi.logpublisher()
-    pubsub = publisher.pubsub()
-    pubsub.subscribe('socket.io#emitter')
-    return pubsub
-
 def yield_from_redis(room = None, breaker = lambda: False):
-    pubsub = get_socket_pubsub()
+    pubsub = wflowapi.logpubsub()
     for rooms,msgdata in yield_room_msg_until(pubsub,room,breaker):
         yield msgdata,rooms
 

@@ -26,5 +26,9 @@ def workflow_status(processing_ids):
 def get_stored_messages(jobguid):
     return redis_messages(jobguid)
 
-def logpublisher():
-    return get_redis() 
+def logpubsub():
+    red =  get_redis()
+    pubsub = red.pubsub()
+    pubsub.subscribe('socket.io#emitter')
+    return pubsub
+
