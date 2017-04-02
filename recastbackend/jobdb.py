@@ -17,10 +17,10 @@ wflowprocdb = wflow_processing_database()
 #########
 
 def register_bare_job(jobguid):
-    wflowprocdb.rpush('workflow_jobs',jobguid)
+    wflowprocdb.rpush('recast:workflow_jobs',jobguid)
 
 def all_jobs():
-    return wflowprocdb.lrange('workflow_jobs',0,-1)
+    return wflowprocdb.lrange('recast:workflow_jobs',0,-1)
 
 def job_details(jobguid):
     return jobs_details([jobguid])
