@@ -1,9 +1,8 @@
-import redis
 import msgpack
 import time
 import click
-import celery
-import importlib
+
+import wflowapi
 
 def yield_redis_msg_until(pubsub,breaker):
     while True:
@@ -31,44 +30,23 @@ def yield_room_msg_until(pubsub,room = None,breaker = lambda: False):
                 continue
         yield extras['rooms'],data['data'][1]
 
-def get_socket_pubsub(celery_app):
-    red = redis.StrictRedis(host = celery_app.conf['CELERY_REDIS_HOST'],
-                              db = celery_app.conf['CELERY_REDIS_DB'], 
-                            port = celery_app.conf['CELERY_REDIS_PORT'])
-    pubsub = red.pubsub()
+def get_socket_pubsub():
+    publisher = wflowapi.logpublisher()
+    pubsub = publisher.pubsub()
     pubsub.subscribe('socket.io#emitter')
     return pubsub
 
-def yield_from_redis(app, room = None, breaker = lambda: False):
-    pubsub = get_socket_pubsub(app)
+def yield_from_redis(room = None, breaker = lambda: False):
+    pubsub = get_socket_pubsub()
     for rooms,msgdata in yield_room_msg_until(pubsub,room,breaker):
         yield msgdata,rooms
 
-def wait_and_echo(result, room = None):
-    for msgdata,rooms in yield_from_redis(celery.current_app,room, lambda: result.ready()):
-        info = click.style('received message to rooms {rooms}: '.format(rooms = rooms), fg = 'black')
-        msg   = click.style('{date} -- {msg}'.format(**msgdata),fg = 'blue')
-        click.secho(info + msg)
-      
-    if result.successful():
-        click.secho('chain suceeded',fg = 'green')
-    else:
-        click.secho('chain failed somewhere',fg = 'red')
-
-
-
 @click.command()
-@click.option('-c','--celeryapp',default = 'recastbackend.fromenvapp:app') 
-def listen(celeryapp):
-    module,attr = celeryapp.split(':')
-    mod = importlib.import_module(module)
-    app = getattr(mod,attr)
-    app.set_current()
+def listen():
     while True:
         try:
             click.secho('connected! start listening',fg = 'green')
-            
-            for msgdata,rooms in yield_from_redis(app):
+            for msgdata,rooms in yield_from_redis():
                 info = click.style('received message to rooms {rooms}: '.format(rooms = rooms),
                                    fg = 'black')
                 msg   = click.style('{date} -- {msg}'.format(**msgdata),fg = 'blue')

@@ -1,23 +1,17 @@
 import json
 import datetime
 import click
-import importlib
+import recastbackend.wflowapi
 
 from recastbackend.listener import yield_from_redis
-from recastbackend.jobstate import get_result_obj, get_stored_messages
+from recastbackend.jobdb import get_celery_id
 
 @click.command()
 @click.argument('jobguid')
 @click.option('-e','--exit')
-@click.option('-c','--celeryapp',default = 'recastcelery.fromenvapp:app')
-def track(celeryapp,jobguid,exit):
+def track(jobguid,exit):
     try:
-        module,attr = celeryapp.split(':')
-        mod = importlib.import_module(module)
-        app = getattr(mod,attr)
-        app.set_current()
-
-        stored = get_stored_messages(jobguid)
+        stored = recastbackend.wflowapi.get_stored_messages(jobguid)
         click.secho('=====================',fg = 'black')
         click.secho('What happened so far:',fg = 'black')
         click.secho('=====================',fg = 'black')
@@ -32,8 +26,9 @@ def track(celeryapp,jobguid,exit):
         click.secho('Tuning in live at {}: '.format(datetime.datetime.now().strftime('%Y-%m-%d %X')), fg = 'green')
         click.secho('=====================',fg = 'green')
 
-        result = get_result_obj(jobguid)
-        for msgdata,_ in yield_from_redis(app,jobguid, lambda: result.ready()):
+        for msgdata,_ in yield_from_redis(
+                room = jobguid,
+                breaker = lambda: recastbackend.wflowapi.workflow_status([get_celery_id(jobguid)])[0] in ['SUCCESS','FAILURE']):
             click.secho('{date} :: {msg}'.format(**msgdata))
 
     except KeyboardInterrupt:

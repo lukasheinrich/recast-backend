@@ -1,36 +1,21 @@
 import logging
-import os
-import json
 import backendcontexts
-import requests
+import wflowapi
 from catalogue import recastcatalogue
 
+
 from recastcelery.messaging import socketlog
-from recastbackend.jobstate import map_job_to_celery,register_job
+from recastbackend.jobdb import map_job_to_celery,register_job
 
 logging.basicConfig(level = logging.INFO)
 log = logging.getLogger(__name__)
 
 def submit_workflow(ctx, queue):
     ctx['queue'] = queue
-    log.info('submitting to workflow server: %s',ctx)
-    resp = requests.post(os.environ['RECAST_WORKFLOW_SERVER']+'/workflow_submit',
-                         data = json.dumps(ctx), headers = {'content-type': 'application/json'})
-    celery_id = resp.json()['id']
-    map_job_to_celery(ctx['jobguid'],celery_id)
-    socketlog(ctx['jobguid'],'workflow registered. processed by celery id: {}'.format(celery_id))
-
-# def submit_celery(ctx,queue):
-#     app.set_current()
-#     result = recastcelery.backendtasks.run_analysis.apply_async((
-#                                                      recastcelery.backendtasks.setupFromURL,
-#                                                      recastcelery.backendtasks.generic_onsuccess,
-#                                                      recastcelery.backendtasks.cleanup,ctx),
-#                                                      queue = queue,)
-
-#     socketlog(ctx['jobguid'],'registered. processed by celery id: {}'.format(result.id))
-#     map_job_to_celery(ctx['jobguid'],result.id)
-#     return result
+    processing_id = wflowapi.workflow_submit(ctx)
+    map_job_to_celery(ctx['jobguid'],processing_id)
+    socketlog(ctx['jobguid'],'workflow registered. processed by wflow id: {}'.format(processing_id))
+    return processing_id
 
 def submit_recast_request(basicreqid,analysisid,wflowconfigname):
     log.info('submitting recast request for basic request #%s part of analysisid: %s wflowconfig %s ',basicreqid,analysisid,wflowconfigname)

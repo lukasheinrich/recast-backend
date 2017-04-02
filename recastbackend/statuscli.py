@@ -1,5 +1,5 @@
 import click
-from recastbackend.jobstate import all_jobs, job_details
+from recastbackend.jobdb import all_jobs, job_details
 
 @click.group()
 def status():
