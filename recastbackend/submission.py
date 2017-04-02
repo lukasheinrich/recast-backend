@@ -1,13 +1,11 @@
 import logging
-import recastcelery.backendtasks
+import os
 import backendcontexts
 import requests
 from catalogue import recastcatalogue
 
 from recastcelery.messaging import socketlog
 from recastbackend.jobstate import map_job_to_celery,register_job
-from recastcelery.fromenvapp import app
-
 
 logging.basicConfig(level = logging.INFO)
 log = logging.getLogger(__name__)
