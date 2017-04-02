@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 
 def submit_workflow(ctx, queue):
     ctx['queue'] = queue
+    log.info('submitting to workflow server: %s',ctx)
     resp = requests.post(os.environ['RECAST_WORKFLOW_SERVER']+'/workflow_submit', data = ctx)
     celery_id = resp.json()['id']
     map_job_to_celery(ctx['jobguid'],celery_id)
