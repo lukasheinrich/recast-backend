@@ -4,7 +4,6 @@ import wflowapi
 from catalogue import recastcatalogue
 
 
-from recastcelery.messaging import socketlog
 from recastbackend.jobdb import map_job_to_celery,register_job
 
 logging.basicConfig(level = logging.INFO)
@@ -14,7 +13,6 @@ def submit_workflow(ctx, queue):
     ctx['queue'] = queue
     processing_id = wflowapi.workflow_submit(ctx)
     map_job_to_celery(ctx['jobguid'],processing_id)
-    socketlog(ctx['jobguid'],'workflow registered. processed by wflow id: {}'.format(processing_id))
     return processing_id
 
 def submit_recast_request(basicreqid,analysisid,wflowconfigname):
