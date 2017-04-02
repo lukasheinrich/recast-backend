@@ -1,5 +1,4 @@
 import logging
-import re
 import wflowapi
 import redis
 import os
