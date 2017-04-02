@@ -4,7 +4,6 @@ import click
 import recastbackend.wflowapi
 
 from recastbackend.listener import yield_from_redis
-from recastbackend.jobdb import get_celery_id
 
 @click.command()
 @click.argument('jobguid')
@@ -28,7 +27,7 @@ def track(jobguid,exit):
 
         for msgdata,_ in yield_from_redis(
                 room = jobguid,
-                breaker = lambda: recastbackend.wflowapi.workflow_status([get_celery_id(jobguid)])[0] in ['SUCCESS','FAILURE']):
+                breaker = lambda: recastbackend.wflowapi.workflow_status([jobguid])[0] in ['SUCCESS','FAILURE']):
             click.secho('{date} :: {msg}'.format(**msgdata))
 
     except KeyboardInterrupt:

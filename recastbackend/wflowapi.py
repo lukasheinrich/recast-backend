@@ -13,11 +13,11 @@ def workflow_submit(workflow_spec):
     					 headers = {'content-type': 'application/json'},
     					 data = json.dumps(workflow_spec),
             )
-    celery_id = resp.json()['id']
-    return celery_id
+    processing_id = resp.json()['id']
+    return processing_id
 
 def workflow_status(processing_ids):
-    resp = requests.get(os.environ['RECAST_WORKFLOW_SERVER']+'/workflow_status',
+    resp = requests.get(os.environ['RECAST_WORKFLOW_SERVER']+'/workflow_c',
     					 headers = {'content-type': 'application/json'},
     					 data = json.dumps({'workflow_ids': processing_ids}),
             )

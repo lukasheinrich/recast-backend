@@ -9,9 +9,8 @@ def status():
 @click.argument('jobguid')
 def jobdetails(jobguid):
     details = job_details(jobguid)
-    click.secho('Job {} (Celery {}) status: {}'.format(
+    click.secho('Job {}  status: {}'.format(
         jobguid,
-        details['celery_task'],
         details['status']
     ), fg = 'blue')
 

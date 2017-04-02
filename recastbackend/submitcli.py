@@ -6,8 +6,8 @@ from recastbackend.submission import yadage_submission
 from recastbackend.listener import yield_from_redis
 import wflowapi
 
-def track_result(celery_id,jobguid):
-    for msgdata,_ in yield_from_redis(room = jobguid, breaker = lambda: wflowapi.workflow_status([celery_id]) in ['SUCCESS','FAILURE']):
+def track_result(processing_id):
+    for msgdata,_ in yield_from_redis(room = processing_id, breaker = lambda: wflowapi.workflow_status([processing_id]) in ['SUCCESS','FAILURE']):
         click.secho('{date} :: {msg}'.format(**msgdata))
 
 @click.group()
@@ -32,7 +32,7 @@ def yadage(input_url,workflow,outputs,outputdir,track,queue,toplevel,presetyml):
     else:
         presetpars = {}
 
-    ctx, celery_id = yadage_submission(input_url,outputdir,'fromcli',outputs.split(','), workflow,toplevel,presetpars,queue)
-    click.secho('submitted job with guid: {}'.format(ctx['jobguid']),fg = 'green')
+    ctx, processing_id = yadage_submission(input_url,outputdir,'fromcli',outputs.split(','), workflow,toplevel,presetpars,queue)
+    click.secho('submitted job with guid: {}'.format(processing_id),fg = 'green')
     if track:
-        track_result(celery_id,ctx['jobguid'])
+        track_result(processing_id)

@@ -6,9 +6,7 @@ from recastbackend.recastconfig import yadage_result_config
 #, yadage_workflow_config
 
 def common_context(input_url,outputdir,wflowconfigname):
-    jobguid = str(uuid.uuid1())
     ctx = {
-        'jobguid': jobguid,
         'inputURL':input_url,
         'wflowconfigname':wflowconfigname,
         'shipout_spec': {
