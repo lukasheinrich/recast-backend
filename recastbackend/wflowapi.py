@@ -17,7 +17,7 @@ def workflow_submit(workflow_spec):
     return celery_id
 
 def workflow_status(processing_ids):
-    resp = requests.get(os.environ['RECAST_WORKFLOW_SERVER']+'/workflow_submit',
+    resp = requests.get(os.environ['RECAST_WORKFLOW_SERVER']+'/workflow_status',
     					 headers = {'content-type': 'application/json'},
     					 data = json.dumps({'workflow_ids': processing_ids}),
             )
