@@ -24,7 +24,7 @@ def celery_to_jobguid(celeryid):
     return 'recast:{}:jobguid'.format(celeryid)
 
 def register_job(basicreqid,wflowconfig,jobguid):
-    #append his job to list of jobs of the request:parameter:wflowconfig
+    # append his job to list of jobs of the request:parameter:wflowconfig
     joblist = joblist_key(basicreqid,wflowconfig)
     log.info('taking note of a processing for basic request %s with wflowconfig %s. jobguid: %s store under: %s',basicreqid,wflowconfig,jobguid,joblist)
     wflowprocdb.rpush(joblist,jobguid)

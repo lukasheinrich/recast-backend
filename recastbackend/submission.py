@@ -1,10 +1,10 @@
 import logging
 import backendcontexts
 import wflowapi
+import jobdb 
+
 from catalogue import recastcatalogue
 
-
-from recastbackend.jobdb import map_job_to_celery,register_job
 
 logging.basicConfig(level = logging.INFO)
 log = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 def submit_workflow(ctx, queue):
     ctx['queue'] = queue
     processing_id = wflowapi.workflow_submit(ctx)
-    map_job_to_celery(ctx['jobguid'],processing_id)
+    jobdb.map_job_to_celery(ctx['jobguid'],processing_id)
     return processing_id
 
 def submit_recast_request(basicreqid,analysisid,wflowconfigname):
@@ -25,13 +25,13 @@ def submit_recast_request(basicreqid,analysisid,wflowconfigname):
         ctx = backendcontexts.yadage_context_for_recast(basicreqid,wflowconfigname,thisconfig)
         log.info('submitting context %s',ctx)
         result = submit_workflow(ctx,'recast_yadage_queue')
-        register_job(basicreqid,wflowconfigname,ctx['jobguid'])
+        jobdb.register_job(basicreqid,wflowconfigname,ctx['jobguid'])
         return ctx['jobguid'],result.id
     elif thisconfig['wflowplugin'] == 'yadagecombo':
         ctx = backendcontexts.yadage_comboctx_for_recast(basicreqid,wflowconfigname,thisconfig)
         log.info('submitting context %s',ctx)
         result = submit_workflow(ctx,'recast_yadage_queue')
-        register_job(basicreqid,wflowconfigname,ctx['jobguid'])
+        jobdb.register_job(basicreqid,wflowconfigname,ctx['jobguid'])
         return ctx['jobguid'],result.id
     else:
         raise RuntimeError('do not know how to construct context for plugin: %s',thisconfig['wflowplugin'])
