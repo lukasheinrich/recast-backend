@@ -16,7 +16,6 @@ setup(
   install_requires = [
     'Click',
     'recast-api',
-    'recast-celery',
     'requests',
     'glob2'
   ],

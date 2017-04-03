@@ -2,8 +2,7 @@ import logging
 import os
 import requests
 import json
-from recastcelery.messaging import get_stored_messages as redis_messages
-from recastcelery.messaging import get_redis
+import redis
 
 log = logging.getLogger(__name__)
 
@@ -16,19 +15,26 @@ def workflow_submit(workflow_spec):
     processing_id = resp.json()['id']
     return processing_id
 
-def workflow_status(processing_ids):
+def workflow_status(workflow_ids):
     resp = requests.get(os.environ['RECAST_WORKFLOW_SERVER']+'/workflow_status',
     					 headers = {'content-type': 'application/json'},
-    					 data = json.dumps({'workflow_ids': processing_ids}),
+    					 data = json.dumps({'workflow_ids': workflow_ids}),
             )
     return resp.json()
 
-def get_stored_messages(jobguid):
-    return redis_messages(jobguid)
+def get_stored_messages(workflow_id):
+    resp = requests.get(os.environ['RECAST_WORKFLOW_SERVER']+'/workflow_msgs',
+                         headers = {'content-type': 'application/json'},
+                         data = json.dumps({'workflow_id': workflow_id}),
+            )
+    return resp.json()
 
 def logpubsub():
-    red =  get_redis()
+    server_data = requests.get(os.environ['RECAST_WORKFLOW_SERVER']+'/pubsub_server').json()
+    red = redis.StrictRedis(host = server_data['host'],
+                              db = server_data['db'],
+                            port = server_data['port'],)
     pubsub = red.pubsub()
-    pubsub.subscribe('socket.io#emitter')
+    pubsub.subscribe(server_data['channel'])
     return pubsub
 
