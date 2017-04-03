@@ -29,12 +29,15 @@ def get_stored_messages(workflow_id):
             )
     return resp.json()
 
+def all_jobs():
+    return requests.get(os.environ['RECAST_WORKFLOW_SERVER']+'/jobs').json()
+
 def logpubsub():
     server_data = requests.get(os.environ['RECAST_WORKFLOW_SERVER']+'/pubsub_server').json()
     red = redis.StrictRedis(host = server_data['host'],
                               db = server_data['db'],
                             port = server_data['port'],)
     pubsub = red.pubsub()
-    pubsub.subscribe(server_data['channel'])
+    pubsub.subscribe(server_data[''])
     return pubsub
 

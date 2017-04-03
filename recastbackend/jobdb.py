@@ -16,11 +16,8 @@ wflowprocdb = wflow_processing_database()
 ######### Generic Job DB stuff
 #########
 
-def register_bare_job(jobguid):
-    wflowprocdb.rpush('recast:workflow_jobs',jobguid)
-
 def all_jobs():
-    return wflowprocdb.lrange('recast:workflow_jobs',0,-1)
+    return wflowapi.all_jobs()
 
 def job_details(jobguid):
     return jobs_details([jobguid])
