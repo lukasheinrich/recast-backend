@@ -41,3 +41,7 @@ def logpubsub():
     pubsub.subscribe(server_data[''])
     return pubsub
 
+def log_msg_stream():
+    pubsub = logpubsub()
+    while True:
+        yield pubsub.get_message()
