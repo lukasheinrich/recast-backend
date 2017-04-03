@@ -1,5 +1,4 @@
 import msgpack
-import time
 import click
 import wflowapi
 

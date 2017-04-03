@@ -3,6 +3,7 @@ import os
 import requests
 import json
 import redis
+import time
 
 log = logging.getLogger(__name__)
 
@@ -42,7 +43,7 @@ def logpubsub():
     return pubsub
 
 def log_msg_until(breaker = None):
-    for message in wflowapi.log_msg_stream():
+    for message in logpubsub():
         if breaker and breaker():
             return
         if message:
