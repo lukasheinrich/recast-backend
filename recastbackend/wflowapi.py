@@ -41,7 +41,10 @@ def logpubsub():
     pubsub.subscribe(server_data['channel'])
     return pubsub
 
-def log_msg_stream():
-    pubsub = logpubsub()
-    while True:
-        yield pubsub.get_message()
+def log_msg_until(breaker = None):
+    for message in wflowapi.log_msg_stream():
+        if breaker and breaker():
+            return
+        if message:
+            yield message      
+        time.sleep(0.001)  # be nice to the system :)    
