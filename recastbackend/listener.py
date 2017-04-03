@@ -3,7 +3,7 @@ import click
 import wflowapi
 
 def yield_socketmsg_until(namespace = '/', breaker = None):
-    for m in wflowapi.log_msg_until(breaker):
+    for m in wflowapi.log_msg_stream(breaker):
         if m['type'] == 'message':
             data =  msgpack.unpackb(m['data'])[0]
             extras =  msgpack.unpackb(m['data'])[1]

@@ -42,7 +42,7 @@ def logpubsub():
     pubsub.subscribe(server_data['channel'])
     return pubsub
 
-def log_msg_until(breaker = None):
+def log_msg_stream(breaker = None):
     pubsub = logpubsub()
     while True:
         if breaker and breaker():
