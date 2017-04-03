@@ -38,7 +38,7 @@ def logpubsub():
                               db = server_data['db'],
                             port = server_data['port'],)
     pubsub = red.pubsub()
-    pubsub.subscribe(server_data[''])
+    pubsub.subscribe(server_data['channel'])
     return pubsub
 
 def log_msg_stream():
