@@ -20,8 +20,6 @@ setup(
     'glob2'
   ],
   dependency_links = [
-    'https://github.com/lukasheinrich/socket.io-python-emitter/tarball/master#egg=socket.io-emitter-0.0.1',
     'https://github.com/recast-hep/recast-api/tarball/master#egg=recast-api-0.0.1',
-    'https://github.com/recast-hep/recast-celery/tarball/master#egg=recast-celery-0.0.1'
   ]
 )
