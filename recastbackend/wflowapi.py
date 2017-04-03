@@ -43,9 +43,11 @@ def logpubsub():
     return pubsub
 
 def log_msg_until(breaker = None):
-    for message in logpubsub():
+    pubsub = logpubsub()
+    while True:
         if breaker and breaker():
             return
+        message = pubsub.get_message()
         if message:
             yield message      
         time.sleep(0.001)  # be nice to the system :)    
