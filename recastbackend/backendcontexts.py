@@ -2,7 +2,6 @@ import os
 import recastbackend.resultaccess
 import recastapi.request.read
 from recastbackend.recastconfig import yadage_result_config
-#, yadage_workflow_config
 
 def common_context(input_url,outputdir,wflowconfigname):
     ctx = {
@@ -29,7 +28,7 @@ def yadage_context(common_context,workflow,toplevel = 'from-github/pseudocap', p
     wflowkey = '{}:{}'.format(toplevel,workflow)
     ctx = common_context
     ctx.update(
-        entry_point = 'recastyadage.backendtasks:recast',
+        wflowtype = 'yadage',
         toplevel = toplevel,
         workflow = workflow,
         fixed_pars = preset_pars or {}
@@ -44,7 +43,7 @@ def yadage_comboctx(common_context, comboconfig):
     ctx = common_context
 
     ctx.update(
-        entry_point = 'recastyadage.backendtasks:recast',
+        wflowtype = 'yadage',
         combinedspec = comboconfig
     )
 
