@@ -1,7 +1,8 @@
 import os
-import recastbackend.resultaccess
-import recastapi.request.read
-from recastbackend.recastconfig import yadage_result_config
+
+from recastapi.request.read import request_archive_for_request
+from .resultaccess import basicreqpath
+from .recastconfig import yadage_result_config
 
 def common_context(input_url,outputdir,wflowconfigname):
     ctx = {
@@ -17,8 +18,8 @@ def common_context(input_url,outputdir,wflowconfigname):
     return ctx
 
 def common_contxt_for_recast(basicreqid,wflowconfigname):
-    fileurl = recastapi.request.read.request_archive_for_request(basicreqid,dry_run = True)
-    outputdir = recastbackend.resultaccess.basicreqpath(basicreqid)
+    fileurl = request_archive_for_request(basicreqid,dry_run = True)
+    outputdir = basicreqpath(basicreqid)
     return common_context(fileurl,outputdir,wflowconfigname)
 
 def generic_yadage_outputs():
@@ -54,18 +55,16 @@ def yadage_comboctx(common_context, comboconfig):
 
     downstream_results = yadage_result_config()[downstream_key]
     downstream_results = [os.path.join('downstream',x) for x in downstream_results]
-
     ctx['resultlist'] = generic_yadage_outputs() + downstream_results
     return ctx
 
 def yadage_context_for_recast(basicreqid,wflowconfigname,wflowconfig):
-    ctx = common_contxt_for_recast(basicreqid,wflowconfigname)
     wflowconfig = wflowconfig['config']
+    ctx = common_contxt_for_recast(basicreqid,wflowconfigname)
     ctx = yadage_context(ctx,wflowconfig['workflow'],wflowconfig['toplevel'],wflowconfig.get('preset_pars',{}))
     return ctx
 
 def yadage_comboctx_for_recast(basicreqid,wflowconfigname,comboconfig):
     ctx = common_contxt_for_recast(basicreqid,wflowconfigname)
-    
     ctx = yadage_comboctx(ctx,comboconfig['config'])
     return ctx

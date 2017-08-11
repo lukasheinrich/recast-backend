@@ -1,7 +1,8 @@
 import logging
-import wflowapi
 import redis
 import os
+
+from .wflowapi import workflow_status
 
 def wflow_processing_database():
    return redis.StrictRedis(
@@ -27,7 +28,7 @@ def job_details(jobguid):
     return jobs_details([jobguid])
 
 def jobs_details(jobguids):
-    status     = wflowapi.workflow_status(jobguids)
+    status     = workflow_status(jobguids)
     details = {jobid: {
         'job_type': 'workflow',
         'status': status
@@ -49,7 +50,7 @@ def register_job(basicreqid,wflowconfig,jobguid):
 
 def get_processings(basicreqid,wflowconfig):
     jobs = wflowprocdb.lrange(joblist_key(basicreqid,wflowconfig),0,-1)
-    return [{'job':job,'wflowconfig':wflowconfig, 'status': wflowapi.workflow_status([job])} for job in jobs]
+    return [{'job':job,'wflowconfig':wflowconfig, 'status': workflow_status([job])[0]} for job in jobs]
 
 def get_flattened_jobs(basicreq,wflowconfigs):
     return [x for this_config_proc in [get_processings(basicreq,wc) for wc in wflowconfigs] for x in this_config_proc]

@@ -3,14 +3,12 @@ import datetime
 import click
 import recastbackend.wflowapi
 
-from recastbackend.listener import yield_from_redis
-
 @click.command()
 @click.argument('jobguid')
 @click.option('-e','--exit')
 def track(jobguid,exit):
     try:
-        stored = recastbackend.wflowapi.get_stored_messages(jobguid)
+        stored = recastbackend.wflowapi.get_workflow_messages(jobguid,'log')
         click.secho('=====================',fg = 'black')
         click.secho('What happened so far:',fg = 'black')
         click.secho('=====================',fg = 'black')

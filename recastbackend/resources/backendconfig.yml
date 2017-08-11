@@ -9,6 +9,12 @@ plugin_configs:
           recastresult:
             adapter: recastbackend.recastadapters:standard_result
             jsonfilepath: 'recast/recast.json'
+        - workflow: 'from-github/recast_analyses/test/generic_downstream:workflow.yml'
+          results:
+            - 'stat_analysis/limits.json'
+          recastresult:
+            adapter: recastbackend.recastadapters:standard_result
+            jsonfilepath: 'stat_analysis/limits.json'
         - workflow: from-github/phenochain/checkmate_workflow:workflow.yml
           results:
             - 'format_results/limits.json'
@@ -56,24 +62,41 @@ plugin_configs:
           recastresult:
             adapter: recastbackend.recastadapters:null_result
 
-recast_wflowconfigs:
+recast_singlepass_wflowconfigs:
   #this is a list of full stack end-to-end workflows that take the raw RECAST request and 
   #are able to go all the way to a RECAST result..
-  - analysisid: 1
-    configname: dummyconfig
+  - pubkey: 'arxiv/1502.05686'
+    configname: dummyconfig1
     wflowplugin: yadageworkflow
+    request_format: standard_format
     config:
       toplevel: from-github/trivial_recast
       workflow: rootflow.yml
-  - analysisid: 3
+  - pubkey: 'arxiv/1502.05686'
+    configname: dummyconfig2
+    wflowplugin: yadageworkflow
+    request_format: standard_format
+    config:
+      toplevel: from-github/trivial_recast
+      workflow: rootflow.yml
+  - pubkey: 'arxiv/1502.05686'
+    configname: dummyconfig3
+    wflowplugin: yadageworkflow
+    request_format: another_format
+    config:
+      toplevel: from-github/trivial_recast
+      workflow: rootflow.yml
+  - pubkey: arxiv/1403.5294
     configname: 'atlas_ewksusy_2l'
     wflowplugin: yadageworkflow
+    request_format: pmssm_format
     config:
       toplevel: from-github/pseudocap
       workflow: ewk_analyses/ewkdilepton_analysis/ewk_dilepton_recast_workflow.yml
-  - analysisid: 6
+  - pubkey: 'cds/2206134'
     configname: mbj_run2
     wflowplugin: yadageworkflow
+    request_format: mbj_format
     config:
       toplevel: from-github/pseudocap/multibjet_run2
       workflow: workflow.yml
@@ -84,35 +107,55 @@ recast_combo_workflows:
   yadage_combos:
     #the above request-analysis split, explicitly for yadage
     upstream_configs:
+      - configname: madgraph_pythia
+        request_format: nevents_run_pars
+        analysis_interface: hepmc_with_xsec #the interface offered by this upstream .. a string..
+        config:
+          toplevel: from-github/mcevgen/tests/nevents_run_pars_dummy
+          workflow: madgraph_pythia.yml
+          interface_parameters:
+            xsecfile:  'ok'
+            hepmcfile: {stages: 'upstream.[0].pythia', output: hepmcfile, unwrap: true}
+
       - configname: stops_herwig_nllfast
+        request_format: standard_format
         analysis_interface: hepmc_with_xsec #the interface offered by this upstream .. a string..
         config:
           toplevel: from-github/phenochain/checkmate_workflow
           workflow: generation_flow.yml
           interface_parameters:
-            xsecfile: {stages: 'upstream.[0].compute_xsec', output: xsecfile, unwrap: true}
+            xsecfile:  {stages: 'upstream.[0].compute_xsec', output: xsecfile, unwrap: true}
             hepmcfile: {stages: 'upstream.[0].herwig', output: hepmcfile, unwrap: true}
 
       - configname: lhe_pythia_atlas_delphes
+        request_format: standard_format
         analysis_interface: delphesroot_xsec #the interface offered by this upstream .. a string..
         config:
           toplevel: from-github/mcevgen/pythia_delphes
           workflow: workflow.yml
           interface_parameters: 
-            rootfiles: {stages: 'upstream.[0].delphes', output: rootfile}
+            rootfiles:  {stages: 'upstream.[0].delphes', output: rootfile}
             xsec_in_pb: {stages: 'upstream.[0].init', output: xsec_in_pb, unwrap: true}
 
       - configname: lhe_atlas_fullchain_derivation
+        request_format: standard_format
         analysis_interface: atlas_daod_xsec #the interface offered by this upstream .. a string..
         config:
           toplevel: https://raw.githubusercontent.com/lukasheinrich/xAOD-full-chain/master/yadage-defs
           workflow: parallel_lhe_nomerge.yml
           interface_parameters:
-            daodfiles: {stages: 'upstream.[0].parallel.[*].derivation', output: daodfile}
+            daodfiles:  {stages: 'upstream.[0].parallel.[*].derivation', output: daodfile}
             xsec_in_pb: {stages: 'upstream.[0].init', output: xsec_in_pb, unwrap: true}
 
     downstream_configs:
-      - analysisid: 3
+      - pubkey: cds/1525880
+        configname: atlas_analysis
+        required_interface: hepmc_with_xsec
+        config:
+          toplevel: from-github/recast_analyses/test/generic_downstream
+          workflow: workflow.yml
+
+      - pubkey: arxiv/1403.5294
         configname: delphesanalysis
         required_interface: delphesroot_xsec
         config:
@@ -122,7 +165,7 @@ recast_combo_workflows:
               bgdata: /some/bg/data
               obsdata: /some/obs/data
 
-      - analysisid: 3
+      - pubkey: arxiv/1403.5294
         configname: derivation_analysis
         required_interface: atlas_daod_xsec
         config:

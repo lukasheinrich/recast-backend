@@ -3,7 +3,6 @@ import os
 import yaml
 import urllib2
 
-
 def backendconfig():
 	url = os.environ.get('RECAST_BACKENDCONFIGURL',None)
 	if not url:

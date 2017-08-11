@@ -1,5 +1,6 @@
 import json
 import yaml
+
 def null_result(resultdir,**kwargs):
     return {
         'lower_2sig_expected_CLs':None,

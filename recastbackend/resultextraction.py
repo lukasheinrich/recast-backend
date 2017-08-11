@@ -1,10 +1,11 @@
-from recastbackend.recastconfig import yadage_adapter_config
-import importlib
 import os
-import catalogue
+import importlib
+
+from .recastconfig import yadage_adapter_config
+from .catalogue import recastcatalogue
 
 def extract_result(resultdir,analysisid,wflowconfigname):
-    wflowconfig = catalogue.recastcatalogue()[int(analysisid)][wflowconfigname]
+    wflowconfig = recastcatalogue()[int(analysisid)][wflowconfigname]
     if wflowconfig['wflowplugin'] == 'yadageworkflow':
         return extract_yadageworkflow_result(resultdir,wflowconfig['config'])
     if wflowconfig['wflowplugin'] == 'yadagecombo':
