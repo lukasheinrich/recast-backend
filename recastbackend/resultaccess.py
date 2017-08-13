@@ -1,5 +1,5 @@
 import os
-
+from .resultextraction import extract_result
 def resultfilepath(basicreqid,wflowconfig,path):
     base_path = basicreqpath(basicreqid).rstrip('/')
     base_path += '/{}'.format(wflowconfig)
@@ -13,3 +13,9 @@ def basicreqpath(basicreqid):
 def basicreq_wflowconfigpath(basicreqid,wflowconfig):
     brpath = basicreqpath(basicreqid)
     return '{}/{}'.format(brpath.rstrip('/'),wflowconfig)
+
+def resultdata(analysisid,wflowconfigname,basicreqid):
+    fullpath = basicreq_wflowconfigpath(basicreqid,wflowconfigname)
+    if not os.path.exists(fullpath):
+    	return None
+    return extract_result(fullpath,analysisid,wflowconfigname)

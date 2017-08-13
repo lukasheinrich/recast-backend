@@ -63,9 +63,20 @@ def rivet_catalogue():
             rivet_downstreams.append(specific)
     return rivet_downstreams
 
-def recastcatalogue():
+def recastcatalogue(indexing = 'analysis'):
     catalogue_file = os.environ['RECAST_CATALOGUE_FILE'] 
-    return {int(k):v for k,v in json.load(open(catalogue_file)).iteritems()}
+    configdata = json.load(open(catalogue_file))
+
+    if indexing == 'analysis':
+        configdata_indexed = {}
+        for x in configdata:
+            configdata_indexed.setdefault(int(x['analysis']),{})[x['name']] = x['config']
+    if indexing == 'name':
+        configdata_indexed = {}
+        for x in configdata:
+            configdata_indexed[x['name']] = x['config']
+
+    return configdata_indexed
 
 def build_catalogue():
     # for now we'll just reload the file each time later we might reference a database or public repo
@@ -89,18 +100,24 @@ def build_catalogue():
     bckcfg = backendconfig()
 
     #1. first get all the full stack workflows and index them by analysis
-    configdata = {}
+    configdata = []
     for x in bckcfg['recast_singlepass_wflowconfigs']:
         recast_analysis = recastapi.analysis.read.analysis_by_pub_identifier(*x['pubkey'].split('/'))
         if not recast_analysis:
             continue
 
         anid = recast_analysis['id']
-        configdata.setdefault(anid,{})[x['configname']] = {
-            'wflowplugin': x['wflowplugin'],
-            'config': x['config'],
-            'request_format': x['request_format']
-        }
+
+
+        configdata.append({
+            'analysis': recast_analysis['id'],
+            'name': x['configname'],
+            'config': {
+                'wflowplugin': x['wflowplugin'],
+                'config': x['config'],
+                'request_format': x['request_format']
+                }
+        })
 
     #2. second get all downstream workflows by analysis
     comboflowcfg = bckcfg['recast_combo_workflows']['yadage_combos']
@@ -135,9 +152,13 @@ def build_catalogue():
                 'adapter': possible_upstream['config'], 
                 'analysis': downstream['config']
             }
-            configdata.setdefault(anid,{})[comboname] = {
-                'wflowplugin':'yadagecombo',
-                'config': config,
-                'request_format': possible_upstream['request_format']
-            }
+            configdata.append({
+                'name': comboname,
+                'analysis': anid,
+                'config': {
+                    'wflowplugin':'yadagecombo',
+                    'config': config,
+                    'request_format': possible_upstream['request_format']
+                }
+            })
     return configdata
