@@ -46,9 +46,7 @@ def all_wflows():
 
 def logpubsub():
     server_data = requests.get(WFLOW_SERVER+'/pubsub_server').json()
-    red = redis.StrictRedis(host = server_data['host'],
-                              db = server_data['db'],
-                            port = server_data['port'],)
+    red = redis.StrictRedis.from_url(host = server_data['url'])
     pubsub = red.pubsub()
     pubsub.subscribe(server_data['channel'])
     return pubsub
@@ -63,4 +61,4 @@ def log_msg_stream(breaker = None):
             message_data = message['data']
             log.info('yielding message %s', message_data)
             yield json.loads(message_data)
-        time.sleep(0.001)  # be nice to the system :)    
+        time.sleep(0.001)  # be nice to the system :)
