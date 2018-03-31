@@ -5,11 +5,7 @@ import os
 from .wflowapi import workflow_status
 
 def wflow_processing_database():
-   return redis.StrictRedis(
-                host = os.environ.get('RECAST_PROCDB_REDIS_HOST','localhost'),
-                db   = os.environ.get('RECAST_PROCDB_REDIS_DB',0),
-                port = os.environ.get('RECAST_PROCDB_REDIS_PORT',6379)
-          ) 
+   return redis.StrictRedis.from_url('RECAST_PROCDB_REDIS_DB')
 
 log = logging.getLogger(__name__)
 wflowprocdb = wflow_processing_database()
