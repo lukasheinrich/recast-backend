@@ -46,7 +46,7 @@ def all_wflows():
 
 def logpubsub():
     server_data = requests.get(WFLOW_SERVER+'/pubsub_server').json()
-    red = redis.StrictRedis.from_url(host = server_data['url'])
+    red = redis.StrictRedis.from_url(server_data['url'])
     pubsub = red.pubsub()
     pubsub.subscribe(server_data['channel'])
     return pubsub
